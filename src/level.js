@@ -16,6 +16,7 @@ import {
   createTree,
   createCastle,
   createBackgroundCloud,
+  createBackgroundHills,
   createPipe,
   createQuestionBlock,
   createBush,
@@ -427,6 +428,11 @@ function addBushesAndFlowers() {
   }
 }
 
+function addBackgroundHills() {
+  const hills = createBackgroundHills();
+  scene.add(hills);
+}
+
 // Goal
 export let goal;
 
@@ -455,6 +461,7 @@ export function initLevel() {
   createSection4();
   createHazards();
   createCheckpoints();
+  addBackgroundHills();
   createBackgroundClouds();
   addDecorativeTrees();
   addDecorativePipes();

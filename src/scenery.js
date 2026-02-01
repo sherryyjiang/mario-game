@@ -264,7 +264,7 @@ export function createBackgroundHills() {
       new THREE.SphereGeometry(200 * scale, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2),
       material
     );
-    hill.position.set(x, 0, z);
+    hill.position.set(x, CONFIG.groundTopY - 10, z);
     hills.add(hill);
   }
 
