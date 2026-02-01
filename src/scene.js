@@ -3,15 +3,18 @@ import { BloomEffect, EffectComposer, EffectPass, FXAAEffect, RenderPass } from 
 import { CONFIG } from './config.js';
 
 // Create gradient sky background
-function createSkyGradient() {
+function createSkyGradient({ topColor, bottomColor, endColor } = {}) {
   const canvas = document.createElement('canvas');
   canvas.width = 2;
   canvas.height = 512;
   const ctx = canvas.getContext('2d');
   const gradient = ctx.createLinearGradient(0, 0, 0, 512);
-  gradient.addColorStop(0, '#4a90d9');
-  gradient.addColorStop(0.5, '#87ceeb');
-  gradient.addColorStop(1, '#b0e0e6');
+  const top = new THREE.Color(topColor ?? CONFIG.skyTopColor).getStyle();
+  const bottom = new THREE.Color(bottomColor ?? CONFIG.skyBottomColor).getStyle();
+  const end = new THREE.Color(endColor ?? CONFIG.skyBottomColor).getStyle();
+  gradient.addColorStop(0, top);
+  gradient.addColorStop(0.6, bottom);
+  gradient.addColorStop(1, end);
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, 2, 512);
   
@@ -65,6 +68,33 @@ scene.add(sunLight);
 const secondaryLight = new THREE.DirectionalLight(0xffeedd, 0.25);
 secondaryLight.position.set(-300, 400, -200);
 scene.add(secondaryLight);
+
+export function applySceneTheme(theme = {}) {
+  scene.fog.color.set(theme.fogColor ?? CONFIG.fogColor);
+  scene.fog.near = theme.fogNear ?? scene.fog.near;
+  scene.fog.far = theme.fogFar ?? scene.fog.far;
+  scene.background = createSkyGradient({
+    topColor: theme.skyTopColor ?? CONFIG.skyTopColor,
+    bottomColor: theme.skyBottomColor ?? CONFIG.skyBottomColor,
+    endColor: theme.skyEndColor ?? theme.skyBottomColor ?? CONFIG.skyBottomColor,
+  });
+
+  ambientLight.color.set(theme.ambientColor ?? 0xffffff);
+  ambientLight.intensity = theme.ambientIntensity ?? ambientLight.intensity;
+  hemiLight.color.set(theme.hemiSkyColor ?? hemiLight.color.getHex());
+  hemiLight.groundColor.set(theme.hemiGroundColor ?? hemiLight.groundColor.getHex());
+  hemiLight.intensity = theme.hemiIntensity ?? hemiLight.intensity;
+  sunLight.color.set(theme.sunColor ?? sunLight.color.getHex());
+  sunLight.intensity = theme.sunIntensity ?? sunLight.intensity;
+  if (theme.sunPosition) {
+    sunLight.position.copy(theme.sunPosition);
+  }
+  secondaryLight.color.set(theme.secondaryColor ?? secondaryLight.color.getHex());
+  secondaryLight.intensity = theme.secondaryIntensity ?? secondaryLight.intensity;
+  if (theme.secondaryPosition) {
+    secondaryLight.position.copy(theme.secondaryPosition);
+  }
+}
 
 // Post-processing
 export const composer = new EffectComposer(renderer);

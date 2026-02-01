@@ -4,9 +4,11 @@ export const CONFIG = {
   viewWidth: 1200,
   viewHeight: 600,
   
-  // World bounds - 10x expanded
+  // World bounds - Default (Sky)
   worldMinX: 0,
   worldMaxX: 4000,
+  worldMinY: -200,
+  worldMaxY: 900,
   worldMinZ: -400,
   worldMaxZ: 400,
   
@@ -26,6 +28,12 @@ export const CONFIG = {
   gravity: -0.6,
   jumpVelocity: 14,
   landingTolerance: 8,
+  swimMoveSpeed: 4.4,
+  swimUpImpulse: 0.44,
+  swimDownImpulse: 2.4,
+  swimBuoyancy: 0.18,
+  swimDrag: 0.9,
+  swimMaxSpeed: 6,
   
   // Camera
   cameraDistance: 350,
@@ -33,7 +41,7 @@ export const CONFIG = {
   cameraTheta: Math.PI * 0.75,
   cameraTargetHeight: 70,
   cameraFollowSpeed: 6,
-  cameraMinY: 80,
+  cameraMinY: -40,
   cameraRotateSpeed: 0.006,
   cameraFirstPersonHeight: 24,
   cameraFirstPersonForwardOffset: 8,
@@ -59,6 +67,7 @@ export const CONFIG = {
   checkpointFlagColor: 0xffd1dc,
   goalColor: 0xff69b4,
   coinColor: 0xffd700,
+  coralColors: [0xff8fab, 0xffc857, 0x7ee8a7, 0x8ab6ff],
   
   // Checkpoint/goal settings
   checkpointPoleWidth: 12,
@@ -70,10 +79,20 @@ export const CONFIG = {
   goalWidth: 30,
   goalHeight: 120,
   goalDepth: 30,
+  goalRequiredCoins: 20,
+  
+  // Question blocks
+  questionBlockHitTolerance: 5,
+  questionBlockRewardCoins: 3,
+  questionBlockBounceHeight: 10,
   
   // Jump pad
   jumpPadBoost: 20,
 
   // Player rotation
   playerTurnSpeed: 12,
+
+  // Water
+  waterLevel: 180,
+  waterSurfaceOpacity: 0.35,
 };

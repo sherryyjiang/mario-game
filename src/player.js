@@ -1,9 +1,12 @@
 import * as THREE from 'three';
 import { CONFIG } from './config.js';
 import { setShadowFlags } from './helpers.js';
+import { getSwimPose } from './game/logic.js';
 
 export function createPlayer() {
   const player = new THREE.Group();
+  const bodyGroup = new THREE.Group();
+  player.add(bodyGroup);
   
   // Body
   const body = new THREE.Mesh(
@@ -11,7 +14,7 @@ export function createPlayer() {
     new THREE.MeshStandardMaterial({ color: CONFIG.playerBodyColor })
   );
   body.position.y = 0;
-  player.add(body);
+  bodyGroup.add(body);
   
   // Head
   const head = new THREE.Mesh(
@@ -19,7 +22,7 @@ export function createPlayer() {
     new THREE.MeshStandardMaterial({ color: 0xffdbac })
   );
   head.position.y = 22;
-  player.add(head);
+  bodyGroup.add(head);
   
   // Cap
   const cap = new THREE.Mesh(
@@ -27,7 +30,7 @@ export function createPlayer() {
     new THREE.MeshStandardMaterial({ color: CONFIG.playerCapColor })
   );
   cap.position.y = 25;
-  player.add(cap);
+  bodyGroup.add(cap);
   
   // Cap brim
   const brim = new THREE.Mesh(
@@ -37,7 +40,7 @@ export function createPlayer() {
   brim.position.set(0, 22, 7);
   brim.rotation.x = Math.PI / 2;
   brim.scale.set(0.8, 0.5, 0.3);
-  player.add(brim);
+  bodyGroup.add(brim);
   
   // Eyes
   const eyeWhite = new THREE.MeshStandardMaterial({ color: 0xffffff });
@@ -46,14 +49,15 @@ export function createPlayer() {
   for (const side of [-1, 1]) {
     const white = new THREE.Mesh(new THREE.SphereGeometry(3, 8, 6), eyeWhite);
     white.position.set(side * 4, 24, 7);
-    player.add(white);
+    bodyGroup.add(white);
     
     const pupil = new THREE.Mesh(new THREE.SphereGeometry(1.5, 6, 4), eyePupil);
     pupil.position.set(side * 4, 24, 9);
-    player.add(pupil);
+    bodyGroup.add(pupil);
   }
   
   player.size = { width: CONFIG.playerWidth, height: CONFIG.playerHeight, depth: CONFIG.playerDepth };
+  player.userData.bodyGroup = bodyGroup;
   setShadowFlags(player);
   return player;
 }
@@ -65,6 +69,7 @@ export const keys = {
   forward: false,
   backward: false,
   jump: false,
+  dive: false,
 };
 
 window.addEventListener('keydown', (event) => {
@@ -73,7 +78,8 @@ window.addEventListener('keydown', (event) => {
   if (key === 'd' || event.key === 'ArrowRight') keys.right = true;
   if (key === 'w' || event.key === 'ArrowUp') keys.forward = true;
   if (key === 's' || event.key === 'ArrowDown') keys.backward = true;
-  if (key === ' ' || event.code === 'Space') keys.jump = true;
+  if (key === ' ' || event.code === 'Space' || key === 'q') keys.jump = true;
+  if (key === 'shift' || key === 'e') keys.dive = true;
 });
 
 window.addEventListener('keyup', (event) => {
@@ -82,7 +88,8 @@ window.addEventListener('keyup', (event) => {
   if (key === 'd' || event.key === 'ArrowRight') keys.right = false;
   if (key === 'w' || event.key === 'ArrowUp') keys.forward = false;
   if (key === 's' || event.key === 'ArrowDown') keys.backward = false;
-  if (key === ' ' || event.code === 'Space') keys.jump = false;
+  if (key === ' ' || event.code === 'Space' || key === 'q') keys.jump = false;
+  if (key === 'shift' || key === 'e') keys.dive = false;
 });
 
 // Smooth player rotation
@@ -98,4 +105,15 @@ export function updatePlayerFacing(player, move, delta) {
   
   const alpha = 1 - Math.exp(-CONFIG.playerTurnSpeed * delta);
   player.quaternion.slerp(playerTargetQuaternion, alpha);
+}
+
+export function updatePlayerSwimPose(player, move, velocityY, delta, elapsed, isUnderwater) {
+  const bodyGroup = player.userData.bodyGroup;
+  if (!bodyGroup) return;
+
+  const target = isUnderwater ? getSwimPose(move, velocityY) : { pitch: 0, roll: 0 };
+  const alpha = 1 - Math.exp(-8 * delta);
+  bodyGroup.rotation.x = THREE.MathUtils.lerp(bodyGroup.rotation.x, target.pitch, alpha);
+  bodyGroup.rotation.z = THREE.MathUtils.lerp(bodyGroup.rotation.z, target.roll, alpha);
+  bodyGroup.position.y = isUnderwater ? Math.sin(elapsed * 4) * 1.2 : 0;
 }

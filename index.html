@@ -67,15 +67,44 @@
         font-size: 12px;
         line-height: 1.4;
       }
+      #level-panel {
+        position: absolute;
+        top: 16px;
+        left: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 10px 12px;
+        background: rgba(0, 0, 0, 0.45);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 8px;
+        font-family: monospace;
+        color: white;
+      }
+      #level-panel button {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 6px 10px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 12px;
+      }
+      #level-panel button.active {
+        background: rgba(127, 255, 0, 0.2);
+        border-color: rgba(127, 255, 0, 0.6);
+      }
     </style>
   </head>
   <body>
+    <div id="level-panel"></div>
     <div id="death-message">You died!</div>
     <div id="win-message">Course Clear!</div>
     <div id="hud">
       <div id="score">Coins: 0</div>
       <div id="checkpoint">Checkpoint: start</div>
-      <div id="info">WASD or arrows to move, Space to jump, C to toggle first-person. Drag to look around.</div>
+      <div id="goal-status">Goal: Locked</div>
+      <div id="info">WASD/arrows move, Space or Q rise, Shift or E dive, C toggles first-person. Choose level top-left.</div>
     </div>
     <script type="module" src="/src/main.js"></script>
   </body>

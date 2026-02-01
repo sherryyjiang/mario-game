@@ -6,7 +6,16 @@ import {
   getPatrolOffset,
   isAabbOverlap,
   isGoalReached,
+  isGoalUnlocked,
   isLandingOnTop,
+  isQuestionBlockHitFromBelow,
+  applyQuestionBlockHit,
+  getSwimMoveVector,
+  getSwimPose,
+  isInWaterVolumes,
+  getFallDeathY,
+  shouldTriggerFallDeath,
+  updateSwimVelocityY,
   updateCheckpoint,
   updateTimedPlatformState,
 } from './logic.js';
@@ -111,4 +120,93 @@ test('isGoalReached returns true on overlap', () => {
   const goalBox = getAabbFromCenter({ x: 0, y: 0, z: 0 }, { width: 5, height: 5, depth: 5 });
 
   expect(isGoalReached(playerBox, goalBox)).toBe(true);
+});
+
+test('isGoalUnlocked requires enough coins', () => {
+  expect(isGoalUnlocked(5, 10)).toBe(false);
+  expect(isGoalUnlocked(10, 10)).toBe(true);
+});
+
+test('isQuestionBlockHitFromBelow detects upward hit', () => {
+  const playerBox = getAabbFromCenter({ x: 0, y: 4, z: 0 }, { width: 10, height: 8, depth: 10 });
+  const blockBox = getAabbFromCenter({ x: 0, y: 12, z: 0 }, { width: 12, height: 6, depth: 12 });
+
+  const hit = isQuestionBlockHitFromBelow(playerBox, blockBox, 2, 3);
+
+  expect(hit).toBe(true);
+});
+
+test('isQuestionBlockHitFromBelow ignores downward movement', () => {
+  const playerBox = getAabbFromCenter({ x: 0, y: 4, z: 0 }, { width: 10, height: 8, depth: 10 });
+  const blockBox = getAabbFromCenter({ x: 0, y: 12, z: 0 }, { width: 12, height: 6, depth: 12 });
+
+  const hit = isQuestionBlockHitFromBelow(playerBox, blockBox, -1, 3);
+
+  expect(hit).toBe(false);
+});
+
+test('applyQuestionBlockHit rewards only once', () => {
+  const first = applyQuestionBlockHit({ used: false }, true, 2);
+  const second = applyQuestionBlockHit(first, true, 2);
+
+  expect(first.used).toBe(true);
+  expect(first.reward).toBe(2);
+  expect(second.reward).toBe(0);
+});
+
+test('updateSwimVelocityY rises on ascend and falls when not ascending', () => {
+  const config = { swimUpImpulse: 2, swimDownImpulse: 1, swimBuoyancy: 0, swimDrag: 1, swimMaxSpeed: 4 };
+  const up = updateSwimVelocityY(0, { ascend: true }, config);
+  const fall = updateSwimVelocityY(0, {}, config);
+  const clamped = updateSwimVelocityY(-3, {}, config);
+
+  expect(up).toBe(2);
+  expect(fall).toBe(-1);
+  expect(clamped).toBe(-4);
+});
+
+test('isInWaterVolumes returns true when inside any volume', () => {
+  const volumes = [
+    { min: { x: 0, y: 0, z: 0 }, max: { x: 10, y: 10, z: 10 } },
+    { min: { x: 20, y: -5, z: 0 }, max: { x: 30, y: 5, z: 10 } },
+  ];
+
+  expect(isInWaterVolumes({ x: 5, y: 5, z: 5 }, volumes)).toBe(true);
+  expect(isInWaterVolumes({ x: 25, y: 0, z: 5 }, volumes)).toBe(true);
+  expect(isInWaterVolumes({ x: 15, y: 0, z: 5 }, volumes)).toBe(false);
+});
+
+test('getSwimMoveVector ignores camera pitch for vertical movement', () => {
+  const move = getSwimMoveVector(
+    { forward: true },
+    10,
+    { x: 0, y: 0.6, z: -0.8 }
+  );
+
+  expect(move.y).toBeCloseTo(0, 5);
+  expect(move.z).toBeLessThan(0);
+  expect(Math.hypot(move.x, move.y, move.z)).toBeCloseTo(10, 5);
+});
+
+test('getSwimPose pitches diagonally when moving', () => {
+  const pose = getSwimPose({ x: 0, z: -5 }, 0);
+  expect(pose.pitch).toBeLessThan(-0.35);
+});
+
+test('getFallDeathY prefers explicit override', () => {
+  const value = getFallDeathY({ fallDeathY: -500 }, { worldMinY: -200 });
+  expect(value).toBe(-500);
+});
+
+test('getFallDeathY returns null when disabled', () => {
+  const value = getFallDeathY({ fallDeathY: null, worldMinY: -200 }, { worldMinY: -200 });
+  expect(value).toBeNull();
+});
+
+test('shouldTriggerFallDeath uses worldMinY buffer by default', () => {
+  const settings = { worldMinY: -200 };
+  const config = { fallDeathBuffer: 80 };
+
+  expect(shouldTriggerFallDeath(-300, settings, config)).toBe(true);
+  expect(shouldTriggerFallDeath(-250, settings, config)).toBe(false);
 });

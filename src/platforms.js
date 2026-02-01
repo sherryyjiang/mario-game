@@ -10,10 +10,11 @@ import {
   goldMaterial 
 } from './helpers.js';
 
-export function createCloudPlatform({ width, height, depth }) {
+export function createCloudPlatform({ width, height, depth, material }) {
   const group = new THREE.Group();
   
-  const main = createBox({ width, height, depth, material: cloudMaterial.clone() });
+  const mainMaterial = material ?? cloudMaterial.clone();
+  const main = createBox({ width, height, depth, material: mainMaterial });
   group.add(main);
   
   const bumpCount = Math.floor(width / 40);
@@ -21,7 +22,7 @@ export function createCloudPlatform({ width, height, depth }) {
     const bumpSize = 15 + Math.random() * 15;
     const bump = new THREE.Mesh(
       new THREE.SphereGeometry(bumpSize, 8, 6),
-      cloudMaterial
+      mainMaterial
     );
     bump.castShadow = true;
     bump.receiveShadow = true;
@@ -44,12 +45,12 @@ export function createRainbowPlatform({ width, height, depth, colorIndex = 0 }) 
   return mesh;
 }
 
-export function createStonePlatform({ width, height, depth }) {
-  return createBox({ width, height, depth, material: stoneMaterial.clone() });
+export function createStonePlatform({ width, height, depth, material }) {
+  return createBox({ width, height, depth, material: material ?? stoneMaterial.clone() });
 }
 
-export function createGlassPlatform({ width, height, depth }) {
-  return createBox({ width, height, depth, material: glassMaterial.clone() });
+export function createGlassPlatform({ width, height, depth, material }) {
+  return createBox({ width, height, depth, material: material ?? glassMaterial.clone() });
 }
 
 export function createSpinningPlatform({ width, height, depth, material }) {

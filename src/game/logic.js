@@ -138,6 +138,127 @@ export function isGoalReached(playerBox, goalBox) {
   return isAabbOverlap(playerBox, goalBox);
 }
 
+export function isGoalUnlocked(score, requiredCoins = 0) {
+  return score >= requiredCoins;
+}
+
+export function isQuestionBlockHitFromBelow(playerBox, blockBox, velocityY, tolerance = 0) {
+  if (velocityY <= 0) return false;
+
+  const overlapsX = playerBox.max.x >= blockBox.min.x && playerBox.min.x <= blockBox.max.x;
+  const overlapsZ = playerBox.max.z >= blockBox.min.z && playerBox.min.z <= blockBox.max.z;
+  const headDistance = Math.abs(blockBox.min.y - playerBox.max.y);
+
+  return overlapsX && overlapsZ && headDistance <= tolerance;
+}
+
+export function applyQuestionBlockHit(blockState, hit, reward = 1) {
+  if (!hit || blockState?.used) {
+    return { ...blockState, reward: 0 };
+  }
+
+  return { ...blockState, used: true, reward };
+}
+
+export function updateSwimVelocityY(velocityY, input, config) {
+  const swimUpImpulse = config?.swimUpImpulse ?? 0;
+  const swimDownImpulse = config?.swimDownImpulse ?? 0;
+  const swimBuoyancy = config?.swimBuoyancy ?? 0;
+  const swimDrag = config?.swimDrag ?? 1;
+  const swimMaxSpeed = config?.swimMaxSpeed ?? Infinity;
+
+  let next = velocityY + swimBuoyancy;
+  if (input?.ascend) {
+    next += swimUpImpulse;
+  } else {
+    next -= swimDownImpulse;
+  }
+  next *= swimDrag;
+
+  return clamp(next, -swimMaxSpeed, swimMaxSpeed);
+}
+
+export function getFallDeathY(settings, config) {
+  if (settings?.fallDeathY === null) return null;
+  if (Number.isFinite(settings?.fallDeathY)) return settings.fallDeathY;
+
+  const worldMinY = settings?.worldMinY ?? config?.worldMinY;
+  if (!Number.isFinite(worldMinY)) return null;
+
+  const buffer = settings?.fallDeathBuffer ?? config?.fallDeathBuffer ?? 80;
+  return worldMinY - buffer;
+}
+
+export function shouldTriggerFallDeath(playerY, settings, config) {
+  const threshold = getFallDeathY(settings, config);
+  if (!Number.isFinite(threshold)) return false;
+  return playerY < threshold;
+}
+
+export function isInWaterVolumes(point, volumes = []) {
+  return volumes.some((volume) => isPointInAabb(point, volume));
+}
+
+export function getSwimMoveVector(input, speed, cameraForward) {
+  const forwardX = cameraForward?.x ?? 0;
+  const forwardZ = cameraForward?.z ?? 0;
+  const forwardLength = Math.hypot(forwardX, forwardZ);
+  if (forwardLength === 0) return { x: 0, y: 0, z: 0 };
+
+  const fx = forwardX / forwardLength;
+  const fz = forwardZ / forwardLength;
+
+  // right = forward x up(0,1,0)
+  const rx = -fz;
+  const ry = 0;
+  const rz = fx;
+  const rightLength = Math.hypot(rx, ry, rz) || 1;
+
+  const rnx = rx / rightLength;
+  const rny = ry / rightLength;
+  const rnz = rz / rightLength;
+
+  let moveX = 0;
+  let moveY = 0;
+  let moveZ = 0;
+
+  if (input.forward) {
+    moveX += fx;
+    moveZ += fz;
+  }
+  if (input.backward) {
+    moveX -= fx;
+    moveZ -= fz;
+  }
+  if (input.right) {
+    moveX += rnx;
+    moveY += rny;
+    moveZ += rnz;
+  }
+  if (input.left) {
+    moveX -= rnx;
+    moveY -= rny;
+    moveZ -= rnz;
+  }
+
+  const moveLength = Math.hypot(moveX, moveZ);
+  if (moveLength === 0) return { x: 0, y: 0, z: 0 };
+
+  return {
+    x: (moveX / moveLength) * speed,
+    y: 0,
+    z: (moveZ / moveLength) * speed,
+  };
+}
+
+export function getSwimPose(move, velocityY) {
+  const speed = Math.hypot(move.x ?? 0, move.z ?? 0);
+  const basePitch = speed > 0.2 ? -0.5 : -0.25;
+  const pitch = clamp(basePitch + (velocityY ?? 0) * 0.05, -0.75, 0.45);
+  const roll = clamp((move.x ?? 0) * 0.04, -0.35, 0.35);
+  return { pitch, roll };
+}
+
 function getAabbCenter(box) {
   return {
     x: (box.min.x + box.max.x) / 2,
@@ -148,4 +269,19 @@ function getAabbCenter(box) {
 
 function getDistance3d(a, b) {
   return Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
+}
+
+function isPointInAabb(point, box) {
+  return (
+    point.x >= box.min.x &&
+    point.x <= box.max.x &&
+    point.y >= box.min.y &&
+    point.y <= box.max.y &&
+    point.z >= box.min.z &&
+    point.z <= box.max.z
+  );
+}
+
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
 }
