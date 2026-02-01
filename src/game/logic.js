@@ -8,6 +8,45 @@ export function getMoveVector(input, speed) {
   return { x: (x / length) * speed, z: (z / length) * speed };
 }
 
+export function getCameraRelativeMoveVector(input, speed, cameraForward) {
+  const forwardX = cameraForward?.x ?? 0;
+  const forwardZ = cameraForward?.z ?? 0;
+  const forwardLength = Math.hypot(forwardX, forwardZ);
+  if (forwardLength === 0) return { x: 0, z: 0 };
+
+  const fx = forwardX / forwardLength;
+  const fz = forwardZ / forwardLength;
+
+  // right = forward x up(0,1,0) projected to XZ
+  const rx = -fz;
+  const rz = fx;
+
+  let moveX = 0;
+  let moveZ = 0;
+
+  if (input.forward) {
+    moveX += fx;
+    moveZ += fz;
+  }
+  if (input.backward) {
+    moveX -= fx;
+    moveZ -= fz;
+  }
+  if (input.right) {
+    moveX += rx;
+    moveZ += rz;
+  }
+  if (input.left) {
+    moveX -= rx;
+    moveZ -= rz;
+  }
+
+  const moveLength = Math.hypot(moveX, moveZ);
+  if (moveLength === 0) return { x: 0, z: 0 };
+
+  return { x: (moveX / moveLength) * speed, z: (moveZ / moveLength) * speed };
+}
+
 export function getAabbFromCenter(center, size) {
   return {
     min: {

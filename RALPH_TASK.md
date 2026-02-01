@@ -515,14 +515,14 @@ function createSparkleSystem() {
 ## Success Criteria
 
 ### Part 1: Camera System
-1. [ ] Camera orbits around player as center point
-2. [ ] Camera stays at fixed distance behind and above player
-3. [ ] Camera follows smoothly with lerp damping
-4. [ ] Mouse drag rotates camera around player
-5. [ ] W/up moves player AWAY from camera (into screen)
-6. [ ] A/left moves player to camera's LEFT
-7. [ ] Character rotates smoothly to face movement direction
-8. [ ] Camera doesn't clip through ground (stays above minimum height)
+1. [x] Camera orbits around player as center point
+2. [x] Camera stays at fixed distance behind and above player
+3. [x] Camera follows smoothly with lerp damping
+4. [x] Mouse drag rotates camera around player
+5. [x] W/up moves player AWAY from camera (into screen)
+6. [x] A/left moves player to camera's LEFT
+7. [x] Character rotates smoothly to face movement direction
+8. [x] Camera doesn't clip through ground (stays above minimum height)
 
 ### Part 2: Visual Overhaul
 9. [ ] Soft shadows enabled (PCFSoftShadowMap)

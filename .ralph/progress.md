@@ -5,7 +5,7 @@
 ## Summary
 
 - Iterations completed: 3
-- Current status: COMPLETE
+- Current status: IN PROGRESS (Ralph Iteration 1)
 
 ## How This Works
 
@@ -87,3 +87,14 @@ This is how Ralph maintains continuity across iterations.
 
 ### 2026-02-01 15:40:34
 **Session 1 started** (model: gpt-5.2-high)
+
+### 2026-02-01 - Ralph Iteration 1 (Part 1) completed
+**Camera + movement foundation implemented:**
+- Implemented third-person chase camera using spherical orbit around player with smooth exponential damping
+- Added mouse drag camera rotation (pointer events) with clamped pitch to prevent flips
+- Implemented camera-relative movement: W moves away from camera; A/D strafe relative to camera
+- Implemented smooth character facing via quaternion slerp toward movement direction
+- Added minimum camera height clamp to avoid ground clipping
+
+**Tests:** `npm test` passes  
+**Build test:** `npm run build` passes

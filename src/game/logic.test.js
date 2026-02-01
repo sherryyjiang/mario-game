@@ -1,6 +1,7 @@
 import {
   collectCoins,
   getAabbFromCenter,
+  getCameraRelativeMoveVector,
   getMoveVector,
   getPatrolOffset,
   isAabbOverlap,
@@ -16,6 +17,21 @@ test('getMoveVector normalizes diagonal movement', () => {
   expect(Math.hypot(move.x, move.z)).toBeCloseTo(10, 5);
   expect(move.x).toBeGreaterThan(0);
   expect(move.z).toBeLessThan(0);
+});
+
+test('getCameraRelativeMoveVector moves away from camera when pressing forward', () => {
+  const move = getCameraRelativeMoveVector({ forward: true }, 10, { x: 0, z: -1 });
+  expect(move).toEqual({ x: 0, z: -10 });
+});
+
+test('getCameraRelativeMoveVector moves to camera right when pressing right', () => {
+  const move = getCameraRelativeMoveVector({ right: true }, 10, { x: 0, z: -1 });
+  expect(move).toEqual({ x: 10, z: 0 });
+});
+
+test('getCameraRelativeMoveVector normalizes diagonal movement', () => {
+  const move = getCameraRelativeMoveVector({ forward: true, right: true }, 10, { x: 0, z: -1 });
+  expect(Math.hypot(move.x, move.z)).toBeCloseTo(10, 5);
 });
 
 test('getMoveVector returns zero when no input', () => {

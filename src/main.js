@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import {
   collectCoins,
   getAabbFromCenter,
-  getMoveVector,
+  getCameraRelativeMoveVector,
   getPatrolOffset,
   isAabbOverlap,
   isGoalReached,
@@ -41,11 +41,13 @@ const CONFIG = {
   landingTolerance: 8,
   
   // Camera
-  cameraOffsetX: 0,
-  cameraOffsetY: 200,
-  cameraOffsetZ: 350,
+  cameraDistance: 350,
+  cameraPhi: 1.1, // polar angle (0 = straight up). Lower = higher camera.
+  cameraTheta: Math.PI * 0.75, // azimuth around player
   cameraTargetHeight: 70,
-  cameraLerp: 0.08,
+  cameraFollowSpeed: 6, // higher = snappier
+  cameraMinY: 80,
+  cameraRotateSpeed: 0.006,
   
   // Colors - Sky Castle Theme
   skyTopColor: 0x4a90d9,
@@ -78,6 +80,9 @@ const CONFIG = {
   
   // Jump pad
   jumpPadBoost: 20,
+
+  // Player rotation
+  playerTurnSpeed: 12,
 };
 
 // Scene setup
@@ -114,6 +119,9 @@ const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(CONFIG.viewWidth, CONFIG.viewHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 document.body.appendChild(renderer.domElement);
+
+renderer.domElement.style.touchAction = 'none';
+renderer.domElement.addEventListener('contextmenu', (event) => event.preventDefault());
 
 // Lighting
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
@@ -968,17 +976,74 @@ function resetPlayer({ resetCheckpoint = false } = {}) {
 const clock = new THREE.Clock();
 const cameraTarget = new THREE.Vector3();
 const cameraPosition = new THREE.Vector3();
+const cameraOffset = new THREE.Vector3();
+const cameraForward = new THREE.Vector3();
+const playerTargetQuaternion = new THREE.Quaternion();
+const playerTargetEuler = new THREE.Euler(0, 0, 0, 'YXZ');
 let elapsed = 0;
 
-function updateCamera() {
+const cameraState = {
+  isDragging: false,
+  lastClientX: 0,
+  lastClientY: 0,
+  theta: CONFIG.cameraTheta,
+  phi: CONFIG.cameraPhi,
+  distance: CONFIG.cameraDistance,
+};
+
+renderer.domElement.addEventListener('pointerdown', (event) => {
+  cameraState.isDragging = true;
+  cameraState.lastClientX = event.clientX;
+  cameraState.lastClientY = event.clientY;
+  renderer.domElement.setPointerCapture?.(event.pointerId);
+});
+
+renderer.domElement.addEventListener('pointerup', (event) => {
+  cameraState.isDragging = false;
+  renderer.domElement.releasePointerCapture?.(event.pointerId);
+});
+
+renderer.domElement.addEventListener('pointercancel', () => {
+  cameraState.isDragging = false;
+});
+
+renderer.domElement.addEventListener('pointermove', (event) => {
+  if (!cameraState.isDragging) return;
+
+  const dx = event.clientX - cameraState.lastClientX;
+  const dy = event.clientY - cameraState.lastClientY;
+  cameraState.lastClientX = event.clientX;
+  cameraState.lastClientY = event.clientY;
+
+  cameraState.theta -= dx * CONFIG.cameraRotateSpeed;
+  cameraState.phi += dy * CONFIG.cameraRotateSpeed;
+  cameraState.phi = THREE.MathUtils.clamp(cameraState.phi, 0.45, 1.35);
+});
+
+function getExpDampAlpha(delta, speed) {
+  return 1 - Math.exp(-speed * delta);
+}
+
+function updateCamera(delta) {
   cameraTarget.set(playerX, playerY + CONFIG.cameraTargetHeight, playerZ);
-  cameraPosition.set(
-    playerX + CONFIG.cameraOffsetX,
-    playerY + CONFIG.cameraOffsetY,
-    playerZ + CONFIG.cameraOffsetZ
-  );
-  camera.position.lerp(cameraPosition, CONFIG.cameraLerp);
+
+  const spherical = new THREE.Spherical(cameraState.distance, cameraState.phi, cameraState.theta);
+  cameraOffset.setFromSpherical(spherical);
+
+  cameraPosition.copy(cameraTarget).add(cameraOffset);
+  cameraPosition.y = Math.max(cameraPosition.y, CONFIG.cameraMinY);
+
+  camera.position.lerp(cameraPosition, getExpDampAlpha(delta, CONFIG.cameraFollowSpeed));
   camera.lookAt(cameraTarget);
+}
+
+function updatePlayerFacing(move, delta) {
+  if (move.x === 0 && move.z === 0) return;
+
+  const targetAngle = Math.atan2(move.x, move.z);
+  playerTargetEuler.set(0, targetAngle, 0);
+  playerTargetQuaternion.setFromEuler(playerTargetEuler);
+  player.quaternion.slerp(playerTargetQuaternion, getExpDampAlpha(delta, CONFIG.playerTurnSpeed));
 }
 
 function updateMovingPlatforms(delta) {
@@ -1038,7 +1103,15 @@ function update() {
   rotateCoins(delta);
 
   // Horizontal movement
-  const move = getMoveVector(keys, CONFIG.moveSpeed);
+  camera.getWorldDirection(cameraForward);
+  cameraForward.y = 0;
+  cameraForward.normalize();
+
+  const move = getCameraRelativeMoveVector(
+    keys,
+    CONFIG.moveSpeed,
+    { x: cameraForward.x, z: cameraForward.z }
+  );
   playerX += move.x;
   playerZ += move.z;
 
@@ -1090,9 +1163,7 @@ function update() {
   isGrounded = landed;
 
   // Face movement direction
-  if (move.x !== 0 || move.z !== 0) {
-    player.rotation.y = Math.atan2(move.x, move.z);
-  }
+  updatePlayerFacing(move, delta);
 
   playerBox = getAabbFromCenter(
     { x: playerX, y: playerY, z: playerZ },
@@ -1128,7 +1199,7 @@ function update() {
 
   if (isDead || isWin) {
     updatePlayerPosition();
-    updateCamera();
+    updateCamera(delta);
     return;
   }
 
@@ -1160,7 +1231,7 @@ function update() {
   }
 
   updatePlayerPosition();
-  updateCamera();
+  updateCamera(delta);
 }
 
 // Animation loop
