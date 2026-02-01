@@ -12,7 +12,15 @@ import {
   createCheckpoint 
 } from './platforms.js';
 import { createGoomba } from './enemies.js';
-import { createTree, createCastle, createBackgroundCloud, createPipe, createQuestionBlock } from './scenery.js';
+import {
+  createTree,
+  createCastle,
+  createBackgroundCloud,
+  createPipe,
+  createQuestionBlock,
+  createBush,
+  createFlower,
+} from './scenery.js';
 
 // Level data
 export const platforms = [];
@@ -393,6 +401,32 @@ function addQuestionBlocks() {
   }
 }
 
+function addBushesAndFlowers() {
+  const bushPlacements = [
+    { x: 260, y: CONFIG.groundTopY, z: -150 },
+    { x: 760, y: 130, z: 140 },
+    { x: 2100, y: 190, z: -160 },
+  ];
+
+  for (const placement of bushPlacements) {
+    const bush = createBush();
+    bush.position.set(placement.x, placement.y, placement.z);
+    scene.add(bush);
+  }
+
+  const flowerPlacements = [
+    { x: 360, y: CONFIG.groundTopY, z: -90, color: 0xff69b4 },
+    { x: 1220, y: 220, z: 160, color: 0x87cefa },
+    { x: 2600, y: 500, z: -120, color: 0xffd1dc },
+  ];
+
+  for (const placement of flowerPlacements) {
+    const flower = createFlower(placement.color);
+    flower.position.set(placement.x, placement.y, placement.z);
+    scene.add(flower);
+  }
+}
+
 // Goal
 export let goal;
 
@@ -425,6 +459,7 @@ export function initLevel() {
   addDecorativeTrees();
   addDecorativePipes();
   addQuestionBlocks();
+  addBushesAndFlowers();
   createGoal();
 }
 

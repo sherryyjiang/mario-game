@@ -26,7 +26,8 @@ The codebase has been split into modules for easier navigation:
 - [x] Trees placed in level
 - [x] Pipes placed in level
 - [x] Question blocks placed + animated
-- [ ] Remaining: bushes/flowers, background hills
+- [x] Bushes/flowers placed
+- [ ] Remaining: background hills
 
 ### 2026-02-01 16:00:37
 **Session 1 started** (model: gpt-5.2-high)
