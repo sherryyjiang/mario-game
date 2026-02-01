@@ -1,43 +1,45 @@
 ---
-task: Micro-Planet Gravity Prototype (Three.js + Vite)
+task: 3D Platformer Prototype (Three.js + Vite)
 test_command: "npm run build"
 ---
 
-# Task: Micro-Planet Gravity Prototype
+# Task: 3D Platformer Prototype
 
-Build a minimal Three.js prototype inspired by Mario 64/Galaxy. The scene has a small spherical planet and a simple character that walks around its surface under custom gravity. Movement uses WASD (camera-relative), and a third-person camera follows behind the character.
+Build a minimal 3D platformer inspired by Super Mario using Three.js with a perspective camera. Use box meshes, simple gravity/jump, and a gap + platform to validate collisions. Keep movement on the X/Y plane (Z fixed).
 
 ## Requirements
 
 1. Use **vanilla JavaScript** with **Three.js** and **Vite**.
-2. Keep visuals minimal: one planet sphere and one character mesh.
-3. Implement custom gravity toward the planet center.
-4. Movement is on the tangent plane (camera-relative WASD).
-5. Follow camera with smooth damping.
+2. Perspective camera framed to an 800x400 play area (centered at 400, 200).
+3. Light blue background (#87CEEB).
+4. Ground: two brown segments with a gap.
+5. Player: red box with gravity + jump + left/right movement.
+6. Floating green platform (one-way from above).
+7. Death + reset when y < 0 with a brief message.
 
 ## Success Criteria
 
-1. [x] `vite` dev server runs and renders the planet + character.
-2. [x] Character is grounded on the planet via custom gravity.
-3. [x] WASD moves the character around the sphere surface (camera-relative).
-4. [x] Camera follows behind the character and rotates smoothly with movement.
-5. [x] Movement is frame-rate independent (delta time based).
-6. [x] Controls feel responsive (no visible jitter or input lag).
-7. [x] Camera maintains a stable offset and does not flip at poles.
+1. [ ] `vite` dev server runs and renders ground segments, platform, player.
+2. [ ] Arrow keys move player left/right at 5 units per frame.
+3. [ ] Gravity (-0.5 per frame) and jump (velocity 12) work.
+4. [ ] Player lands only on ground segments (gap is pass-through).
+5. [ ] One-way platform works from above while falling.
+6. [ ] Falling below y=0 shows “You died!” and resets after 1s.
+7. [ ] Player clamped to x range 15–785.
 
 ## Defaults
 
-- Planet radius: 5
-- Character size: 0.5
-- Camera distance: 6
-- Camera height offset: 2
-- No jump (grounded-only)
+- View size: 800x400 (center 400, 200)
+- Ground top y: 50
+- Player size: 30x40 (start x: 50, y on ground)
+- Gap: x 350–470
+- Platform: center x 350, y 250, size 100x15
 
 ## Manual Test Plan
 
 1. Start dev server and confirm scene renders.
-2. Hold W and circle the planet; confirm grounded movement.
-3. Strafe with A/D and verify camera stays behind without flipping.
+2. Walk right, jump gap via platform, land on right ground.
+3. Fall into gap to see death + reset.
 
 ---
 

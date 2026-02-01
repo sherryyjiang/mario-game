@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { stepJumpState } from './jump.js';
 
 // Configuration
 const CONFIG = {
@@ -9,6 +10,7 @@ const CONFIG = {
   moveSpeed: 3,
   cameraLerpFactor: 0.1,
   gravityStrength: 20,
+  jumpSpeed: 8,
 };
 
 // Scene setup
@@ -83,6 +85,12 @@ scene.add(characterGroup);
 const initialUp = new THREE.Vector3(0, 1, 0);
 characterGroup.position.copy(initialUp.clone().multiplyScalar(CONFIG.planetRadius));
 
+// Jump state
+let currentRadius = characterGroup.position.length();
+let verticalVelocity = 0;
+let isGrounded = true;
+let jumpQueued = false;
+
 // Input state
 const keys = {
   w: false,
@@ -102,6 +110,9 @@ const cameraTargetLookAt = new THREE.Vector3();
 window.addEventListener('keydown', (e) => {
   const key = e.key.toLowerCase();
   if (key in keys) keys[key] = true;
+  if (e.code === 'Space' && !e.repeat) {
+    jumpQueued = true;
+  }
 });
 
 window.addEventListener('keyup', (e) => {
@@ -114,18 +125,6 @@ window.addEventListener('resize', () => {
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
-
-// Helper function to align object to surface normal
-function alignToSurface(object, surfaceNormal) {
-  const up = surfaceNormal.clone().normalize();
-  
-  // Create a quaternion that rotates from world up to surface normal
-  const worldUp = new THREE.Vector3(0, 1, 0);
-  const quaternion = new THREE.Quaternion();
-  quaternion.setFromUnitVectors(worldUp, up);
-  
-  object.quaternion.copy(quaternion);
-}
 
 // Get surface normal (direction from planet center to character)
 function getSurfaceNormal() {
@@ -189,6 +188,25 @@ function update(deltaTime) {
   if (keys.s) moveDirection.sub(moveForward);
   if (keys.a) moveDirection.add(moveRight);
   if (keys.d) moveDirection.sub(moveRight);
+
+  const jumpState = stepJumpState(
+    {
+      radius: currentRadius,
+      velocity: verticalVelocity,
+      grounded: isGrounded,
+    },
+    {
+      baseRadius: CONFIG.planetRadius,
+      jumpSpeed: CONFIG.jumpSpeed,
+      gravity: CONFIG.gravityStrength,
+      deltaTime,
+      jumpRequested: jumpQueued,
+    }
+  );
+  currentRadius = jumpState.radius;
+  verticalVelocity = jumpState.velocity;
+  isGrounded = jumpState.grounded;
+  jumpQueued = false;
   
   // Apply movement
   if (moveDirection.lengthSq() > 0) {
@@ -200,10 +218,10 @@ function update(deltaTime) {
     // Move character along the surface
     const moveAmount = CONFIG.moveSpeed * deltaTime;
     characterGroup.position.add(moveDirection.clone().multiplyScalar(moveAmount));
-    
-    // Project back onto planet surface (custom gravity)
-    characterGroup.position.normalize().multiplyScalar(CONFIG.planetRadius);
   }
+
+  // Project back onto current jump radius
+  characterGroup.position.normalize().multiplyScalar(currentRadius);
   
   // Align character to surface
   const newNormal = getSurfaceNormal();
