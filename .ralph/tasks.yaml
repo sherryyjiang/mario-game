@@ -3,168 +3,126 @@
 # DO NOT EDIT - regenerated on task file change
 
 source_file: RALPH_TASK.md
-source_mtime: 1769932190
-generated_at: 2026-02-01T07:49:54Z
+source_mtime: 1769932946
+generated_at: 2026-02-01T08:02:45Z
 
 tasks:
-  - id: "line_518"
-    line_number: 518
+  - id: "line_73"
+    line_number: 73
     status: completed
     parallel_group: 999999
-    description: Camera orbits around player as center point
+    description: Camera orbits player, stays behind/above
     indent_level: 0
     raw_marker: 1.
-  - id: "line_519"
-    line_number: 519
+  - id: "line_74"
+    line_number: 74
     status: completed
     parallel_group: 999999
-    description: Camera stays at fixed distance behind and above player
+    description: Smooth follow with damping
     indent_level: 0
     raw_marker: 2.
-  - id: "line_520"
-    line_number: 520
-    status: completed
-    parallel_group: 999999
-    description: Camera follows smoothly with lerp damping
-    indent_level: 0
-    raw_marker: 3.
-  - id: "line_521"
-    line_number: 521
+  - id: "line_75"
+    line_number: 75
     status: completed
     parallel_group: 999999
     description: Mouse drag rotates camera around player
     indent_level: 0
-    raw_marker: 4.
-  - id: "line_522"
-    line_number: 522
+    raw_marker: 3.
+  - id: "line_76"
+    line_number: 76
     status: completed
     parallel_group: 999999
-    description: W/up moves player AWAY from camera (into screen)
+    description: W moves player AWAY from camera
+    indent_level: 0
+    raw_marker: 4.
+  - id: "line_77"
+    line_number: 77
+    status: completed
+    parallel_group: 999999
+    description: Character rotates smoothly toward movement
     indent_level: 0
     raw_marker: 5.
-  - id: "line_523"
-    line_number: 523
+  - id: "line_80"
+    line_number: 80
     status: completed
     parallel_group: 999999
-    description: A/left moves player to camera's LEFT
+    description: Soft shadows enabled
     indent_level: 0
     raw_marker: 6.
-  - id: "line_524"
-    line_number: 524
+  - id: "line_81"
+    line_number: 81
     status: completed
     parallel_group: 999999
-    description: Character rotates smoothly to face movement direction
+    description: Post-processing: bloom + anti-aliasing
     indent_level: 0
     raw_marker: 7.
-  - id: "line_525"
-    line_number: 525
+  - id: "line_82"
+    line_number: 82
     status: completed
     parallel_group: 999999
-    description: Camera doesn't clip through ground (stays above minimum height)
+    description: Hemisphere + directional lighting
     indent_level: 0
     raw_marker: 8.
-  - id: "line_528"
-    line_number: 528
+  - id: "line_83"
+    line_number: 83
     status: completed
     parallel_group: 999999
-    description: Soft shadows enabled (PCFSoftShadowMap)
+    description: Fog matching sky
     indent_level: 0
     raw_marker: 9.
-  - id: "line_529"
-    line_number: 529
+  - id: "line_86"
+    line_number: 86
     status: completed
     parallel_group: 999999
-    description: Post-processing pipeline: bloom + anti-aliasing
+    description: Goombas have rounded body, eyes, eyebrows, feet
     indent_level: 0
     raw_marker: 10.
-  - id: "line_530"
-    line_number: 530
+  - id: "line_87"
+    line_number: 87
     status: completed
     parallel_group: 999999
-    description: Hemisphere light + directional sun light
+    description: Goombas have idle bounce
     indent_level: 0
     raw_marker: 11.
-  - id: "line_531"
-    line_number: 531
+  - id: "line_88"
+    line_number: 88
     status: completed
     parallel_group: 999999
-    description: Atmospheric fog matching sky color
+    description: Goombas animate when walking
     indent_level: 0
     raw_marker: 12.
-  - id: "line_532"
-    line_number: 532
+  - id: "line_91"
+    line_number: 91
     status: completed
     parallel_group: 999999
-    description: Player and platforms cast/receive shadows
+    description: 5+ trees placed
     indent_level: 0
     raw_marker: 13.
-  - id: "line_535"
-    line_number: 535
+  - id: "line_92"
+    line_number: 92
     status: completed
     parallel_group: 999999
-    description: Goombas have rounded body (not box)
+    description: 3+ pipes placed
     indent_level: 0
     raw_marker: 14.
-  - id: "line_536"
-    line_number: 536
-    status: completed
+  - id: "line_93"
+    line_number: 93
+    status: pending
     parallel_group: 999999
-    description: Goombas have eyes, pupils, and angry eyebrows
+    description: 3+ question blocks with animation
     indent_level: 0
     raw_marker: 15.
-  - id: "line_537"
-    line_number: 537
-    status: completed
+  - id: "line_94"
+    line_number: 94
+    status: pending
     parallel_group: 999999
-    description: Goombas have two feet
+    description: 5+ bushes/flowers placed
     indent_level: 0
     raw_marker: 16.
-  - id: "line_538"
-    line_number: 538
-    status: completed
+  - id: "line_95"
+    line_number: 95
+    status: pending
     parallel_group: 999999
-    description: Goombas have idle bounce animation
+    description: Background hills visible
     indent_level: 0
     raw_marker: 17.
-  - id: "line_539"
-    line_number: 539
-    status: completed
-    parallel_group: 999999
-    description: Goombas have walking animation (feet movement)
-    indent_level: 0
-    raw_marker: 18.
-  - id: "line_542"
-    line_number: 542
-    status: completed
-    parallel_group: 999999
-    description: At least 5 decorative trees placed in world
-    indent_level: 0
-    raw_marker: 19.
-  - id: "line_543"
-    line_number: 543
-    status: pending
-    parallel_group: 999999
-    description: At least 3 green pipes placed in world
-    indent_level: 0
-    raw_marker: 20.
-  - id: "line_544"
-    line_number: 544
-    status: pending
-    parallel_group: 999999
-    description: At least 3 question blocks with bounce animation
-    indent_level: 0
-    raw_marker: 21.
-  - id: "line_545"
-    line_number: 545
-    status: pending
-    parallel_group: 999999
-    description: At least 5 bushes or flowers placed in world
-    indent_level: 0
-    raw_marker: 22.
-  - id: "line_546"
-    line_number: 546
-    status: pending
-    parallel_group: 999999
-    description: Background hills/mountains visible in distance
-    indent_level: 0
-    raw_marker: 23.
