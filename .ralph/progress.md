@@ -107,3 +107,11 @@ This is how Ralph maintains continuity across iterations.
 
 **Tests:** `npm test` passes  
 **Build test:** `npm run build` passes
+
+### 2026-02-01 - Ralph Iteration 1 (Part 2b) completed
+**Post-processing implemented:**
+- Added `postprocessing` composer pipeline with BloomEffect + FXAAEffect
+- Switched main render loop to `composer.render()` for full pipeline rendering
+
+**Tests:** `npm test` passes  
+**Build test:** `npm run build` passes

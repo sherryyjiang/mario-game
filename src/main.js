@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { BloomEffect, EffectComposer, EffectPass, FXAAEffect, RenderPass } from 'postprocessing';
 import {
   collectCoins,
   getAabbFromCenter,
@@ -117,7 +118,7 @@ const camera = new THREE.PerspectiveCamera(60, aspect, 0.1, 5000);
 camera.position.set(200, 300, 400);
 
 // Renderer
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+const renderer = new THREE.WebGLRenderer({ antialias: false });
 renderer.setSize(CONFIG.viewWidth, CONFIG.viewHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -151,6 +152,32 @@ scene.add(sunLight);
 const secondaryLight = new THREE.DirectionalLight(0xffeedd, 0.25);
 secondaryLight.position.set(-300, 400, -200);
 scene.add(secondaryLight);
+
+// Post-processing (bloom + anti-aliasing)
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+
+const bloomEffect = new BloomEffect({
+  intensity: 0.5,
+  luminanceThreshold: 0.8,
+  luminanceSmoothing: 0.3,
+});
+
+const fxaaEffect = new FXAAEffect();
+const effectPass = new EffectPass(camera, bloomEffect, fxaaEffect);
+effectPass.renderToScreen = true;
+composer.addPass(effectPass);
+
+function updatePostprocessingSize() {
+  const pixelRatio = renderer.getPixelRatio();
+  composer.setSize(CONFIG.viewWidth, CONFIG.viewHeight);
+  fxaaEffect.resolution.set(
+    1 / (CONFIG.viewWidth * pixelRatio),
+    1 / (CONFIG.viewHeight * pixelRatio)
+  );
+}
+
+updatePostprocessingSize();
 
 // === Materials ===
 
@@ -1278,7 +1305,7 @@ function update() {
 function animate() {
   requestAnimationFrame(animate);
   update();
-  renderer.render(scene, camera);
+  composer.render();
 }
 
 animate();

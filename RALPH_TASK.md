@@ -526,7 +526,7 @@ function createSparkleSystem() {
 
 ### Part 2: Visual Overhaul
 9. [x] Soft shadows enabled (PCFSoftShadowMap)
-10. [ ] Post-processing pipeline: bloom + anti-aliasing
+10. [x] Post-processing pipeline: bloom + anti-aliasing
 11. [x] Hemisphere light + directional sun light
 12. [x] Atmospheric fog matching sky color
 13. [x] Player and platforms cast/receive shadows
