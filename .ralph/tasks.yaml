@@ -3,56 +3,56 @@
 # DO NOT EDIT - regenerated on task file change
 
 source_file: RALPH_TASK.md
-source_mtime: 1769926691
-generated_at: 2026-02-01T06:18:42Z
+source_mtime: 1769927839
+generated_at: 2026-02-01T06:38:01Z
 
 tasks:
-  - id: "line_20"
-    line_number: 20
-    status: completed
-    parallel_group: 999999
-    description: `vite` dev server runs and renders the planet + character.
-    indent_level: 0
-    raw_marker: 1.
-  - id: "line_21"
-    line_number: 21
-    status: completed
-    parallel_group: 999999
-    description: Character is grounded on the planet via custom gravity.
-    indent_level: 0
-    raw_marker: 2.
   - id: "line_22"
     line_number: 22
     status: completed
     parallel_group: 999999
-    description: WASD moves the character around the sphere surface (camera-relative).
+    description: `vite` dev server runs and renders ground segments, platform, player.
     indent_level: 0
-    raw_marker: 3.
+    raw_marker: 1.
   - id: "line_23"
     line_number: 23
     status: completed
     parallel_group: 999999
-    description: Camera follows behind the character and rotates smoothly with movement.
+    description: Arrow keys move player left/right at 5 units per frame.
     indent_level: 0
-    raw_marker: 4.
+    raw_marker: 2.
   - id: "line_24"
     line_number: 24
     status: completed
     parallel_group: 999999
-    description: Movement is frame-rate independent (delta time based).
+    description: Gravity (-0.5 per frame) and jump (velocity 12) work.
     indent_level: 0
-    raw_marker: 5.
+    raw_marker: 3.
   - id: "line_25"
     line_number: 25
     status: completed
     parallel_group: 999999
-    description: Controls feel responsive (no visible jitter or input lag).
+    description: Player lands only on ground segments (gap is pass-through).
     indent_level: 0
-    raw_marker: 6.
+    raw_marker: 4.
   - id: "line_26"
     line_number: 26
     status: completed
     parallel_group: 999999
-    description: Camera maintains a stable offset and does not flip at poles.
+    description: One-way platform works from above while falling.
+    indent_level: 0
+    raw_marker: 5.
+  - id: "line_27"
+    line_number: 27
+    status: completed
+    parallel_group: 999999
+    description: Falling below y=0 shows “You died!” and resets after 1s.
+    indent_level: 0
+    raw_marker: 6.
+  - id: "line_28"
+    line_number: 28
+    status: completed
+    parallel_group: 999999
+    description: Player clamped to x range 15–785.
     indent_level: 0
     raw_marker: 7.

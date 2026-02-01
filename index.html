@@ -34,7 +34,19 @@
         text-shadow: 2px 2px 4px black;
         display: none;
       }
-      #info {
+      #win-message {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #7fff00;
+        font-family: Arial, sans-serif;
+        font-size: 48px;
+        font-weight: bold;
+        text-shadow: 2px 2px 6px black;
+        display: none;
+      }
+      #hud {
         position: absolute;
         bottom: 10px;
         left: 50%;
@@ -42,14 +54,29 @@
         color: white;
         font-family: monospace;
         background: rgba(0,0,0,0.5);
-        padding: 10px;
-        border-radius: 4px;
+        padding: 10px 14px;
+        border-radius: 6px;
+        text-align: center;
+        display: grid;
+        gap: 6px;
+      }
+      #score {
+        font-weight: bold;
+      }
+      #info {
+        font-size: 12px;
+        line-height: 1.4;
       }
     </style>
   </head>
   <body>
     <div id="death-message">You died!</div>
-    <div id="info">Arrow keys to move, Up to jump</div>
+    <div id="win-message">Course Clear!</div>
+    <div id="hud">
+      <div id="score">Coins: 0</div>
+      <div id="checkpoint">Checkpoint: start</div>
+      <div id="info">WASD or arrow keys to move, Space to jump. Checkpoints, moving hazards, timed platform, and goal added.</div>
+    </div>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
