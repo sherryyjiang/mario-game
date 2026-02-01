@@ -98,3 +98,12 @@ This is how Ralph maintains continuity across iterations.
 
 **Tests:** `npm test` passes  
 **Build test:** `npm run build` passes
+
+### 2026-02-01 - Ralph Iteration 1 (Part 2a) completed
+**Visual foundation implemented (lighting/shadows/fog):**
+- Enabled soft shadow mapping (PCFSoftShadowMap) and set meshes to cast/receive shadows
+- Added hemisphere light + directional sun light with configured shadow camera
+- Added atmospheric fog matched to sky color
+
+**Tests:** `npm test` passes  
+**Build test:** `npm run build` passes

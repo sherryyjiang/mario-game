@@ -525,11 +525,11 @@ function createSparkleSystem() {
 8. [x] Camera doesn't clip through ground (stays above minimum height)
 
 ### Part 2: Visual Overhaul
-9. [ ] Soft shadows enabled (PCFSoftShadowMap)
+9. [x] Soft shadows enabled (PCFSoftShadowMap)
 10. [ ] Post-processing pipeline: bloom + anti-aliasing
-11. [ ] Hemisphere light + directional sun light
-12. [ ] Atmospheric fog matching sky color
-13. [ ] Player and platforms cast/receive shadows
+11. [x] Hemisphere light + directional sun light
+12. [x] Atmospheric fog matching sky color
+13. [x] Player and platforms cast/receive shadows
 
 ### Part 3: Goomba Enemies
 14. [ ] Goombas have rounded body (not box)

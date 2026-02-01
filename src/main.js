@@ -52,6 +52,7 @@ const CONFIG = {
   // Colors - Sky Castle Theme
   skyTopColor: 0x4a90d9,
   skyBottomColor: 0x87ceeb,
+  fogColor: 0x87ceeb,
   cloudColor: 0xffffff,
   rainbowColors: [0xff0000, 0xff7f00, 0xffff00, 0x00ff00, 0x0000ff, 0x8b00ff],
   stoneColor: 0xa0a0a0,
@@ -87,6 +88,7 @@ const CONFIG = {
 
 // Scene setup
 const scene = new THREE.Scene();
+scene.fog = new THREE.Fog(CONFIG.fogColor, 500, 3000);
 
 // Create gradient sky background
 function createSkyGradient() {
@@ -118,20 +120,35 @@ camera.position.set(200, 300, 400);
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(CONFIG.viewWidth, CONFIG.viewHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 document.body.appendChild(renderer.domElement);
 
 renderer.domElement.style.touchAction = 'none';
 renderer.domElement.addEventListener('contextmenu', (event) => event.preventDefault());
 
 // Lighting
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
 scene.add(ambientLight);
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
-directionalLight.position.set(500, 800, 400);
-scene.add(directionalLight);
+const hemiLight = new THREE.HemisphereLight(0x87ceeb, 0x8b4513, 0.4);
+scene.add(hemiLight);
 
-const secondaryLight = new THREE.DirectionalLight(0xffeedd, 0.4);
+const sunLight = new THREE.DirectionalLight(0xffffff, 1.0);
+sunLight.position.set(200, 400, 200);
+sunLight.castShadow = true;
+sunLight.shadow.mapSize.width = 2048;
+sunLight.shadow.mapSize.height = 2048;
+sunLight.shadow.camera.near = 100;
+sunLight.shadow.camera.far = 1500;
+sunLight.shadow.camera.left = -800;
+sunLight.shadow.camera.right = 800;
+sunLight.shadow.camera.top = 800;
+sunLight.shadow.camera.bottom = -800;
+scene.add(sunLight);
+
+const secondaryLight = new THREE.DirectionalLight(0xffeedd, 0.25);
 secondaryLight.position.set(-300, 400, -200);
 scene.add(secondaryLight);
 
@@ -181,12 +198,22 @@ const goldMaterial = new THREE.MeshStandardMaterial({
 
 // === Helpers ===
 
+function setShadowFlags(object3d, { castShadow = true, receiveShadow = true } = {}) {
+  object3d.traverse((child) => {
+    if (!child.isMesh) return;
+    child.castShadow = castShadow;
+    child.receiveShadow = receiveShadow;
+  });
+}
+
 function createBox({ width, height, depth, material }) {
   const mesh = new THREE.Mesh(
     new THREE.BoxGeometry(width, height, depth),
     material
   );
   mesh.size = { width, height, depth };
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
   return mesh;
 }
 
@@ -210,6 +237,8 @@ function createCloudPlatform({ width, height, depth }) {
       new THREE.SphereGeometry(bumpSize, 8, 6),
       cloudMaterial
     );
+    bump.castShadow = true;
+    bump.receiveShadow = true;
     bump.position.set(
       (i - bumpCount / 2) * 35 + Math.random() * 10,
       height / 2 - 5,
@@ -310,6 +339,8 @@ function createCastle() {
   const roofGeom = new THREE.ConeGeometry(250, 150, 4);
   const roofMat = new THREE.MeshStandardMaterial({ color: 0x8b0000 });
   const roof = new THREE.Mesh(roofGeom, roofMat);
+  roof.castShadow = true;
+  roof.receiveShadow = true;
   roof.position.set(0, 350 + 75, 0);
   roof.rotation.y = Math.PI / 4;
   castle.add(roof);
@@ -337,6 +368,8 @@ function createCastle() {
       new THREE.ConeGeometry(45, 60, 8),
       new THREE.MeshStandardMaterial({ color: 0x4a0000 })
     );
+    towerRoof.castShadow = true;
+    towerRoof.receiveShadow = true;
     towerRoof.position.set(tpos.x, 420 + 30, tpos.z);
     castle.add(towerRoof);
   }
@@ -375,6 +408,7 @@ function createCastle() {
   goldBanner.position.set(0, 320, -155);
   castle.add(goldBanner);
   
+  setShadowFlags(castle);
   return castle;
 }
 
@@ -394,6 +428,8 @@ function createBackgroundCloud(size) {
         opacity: 0.8,
       })
     );
+    ball.castShadow = false;
+    ball.receiveShadow = false;
     ball.position.set(
       (Math.random() - 0.5) * size * 2,
       (Math.random() - 0.5) * size * 0.5,
@@ -775,7 +811,10 @@ function createCoinMesh() {
     emissive: 0xffa500,
     emissiveIntensity: 0.3,
   });
-  return new THREE.Mesh(geometry, material);
+  const mesh = new THREE.Mesh(geometry, material);
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  return mesh;
 }
 
 function spawnCoins() {
@@ -864,7 +903,8 @@ function createPlayer() {
   }
   
   player.size = { width: CONFIG.playerWidth, height: CONFIG.playerHeight, depth: CONFIG.playerDepth };
-  
+
+  setShadowFlags(player);
   return player;
 }
 
