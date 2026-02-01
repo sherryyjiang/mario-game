@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { CONFIG } from './config.js';
 import { scene, camera, composer } from './scene.js';
-import { updateCamera, getCameraForward } from './camera.js';
+import { updateCamera, getCameraForward, isFirstPersonCamera } from './camera.js';
 import { createPlayer, keys, updatePlayerFacing } from './player.js';
 import { getBoxAabb, getGroupAabb, getCoinKey } from './helpers.js';
 import { updateMovingPlatforms, updateSpinningPlatforms } from './platforms.js';
@@ -159,6 +159,8 @@ function update() {
 
   const delta = clock.getDelta();
   elapsed += delta;
+
+  player.visible = !isFirstPersonCamera();
   
   // Update world
   updateMovingPlatforms(movingPlatforms, elapsed);

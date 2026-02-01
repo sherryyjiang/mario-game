@@ -35,6 +35,11 @@ export const CONFIG = {
   cameraFollowSpeed: 6,
   cameraMinY: 80,
   cameraRotateSpeed: 0.006,
+  cameraFirstPersonHeight: 24,
+  cameraFirstPersonForwardOffset: 8,
+  cameraFirstPersonLookDistance: 120,
+  cameraFirstPersonPitchMin: -0.6,
+  cameraFirstPersonPitchMax: 0.6,
   
   // Colors - Sky Castle Theme
   skyTopColor: 0x4a90d9,
