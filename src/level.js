@@ -12,7 +12,7 @@ import {
   createCheckpoint 
 } from './platforms.js';
 import { createGoomba } from './enemies.js';
-import { createTree, createCastle, createBackgroundCloud, createPipe } from './scenery.js';
+import { createTree, createCastle, createBackgroundCloud, createPipe, createQuestionBlock } from './scenery.js';
 
 // Level data
 export const platforms = [];
@@ -378,6 +378,21 @@ function addDecorativePipes() {
   }
 }
 
+function addQuestionBlocks() {
+  const blockPlacements = [
+    { x: 520, y: 175, z: 60 },
+    { x: 1320, y: 300, z: -20 },
+    { x: 2480, y: 420, z: 40 },
+  ];
+
+  for (const placement of blockPlacements) {
+    const block = createQuestionBlock();
+    block.position.set(placement.x, placement.y, placement.z);
+    scene.add(block);
+    questionBlocks.push(block);
+  }
+}
+
 // Goal
 export let goal;
 
@@ -409,6 +424,7 @@ export function initLevel() {
   createBackgroundClouds();
   addDecorativeTrees();
   addDecorativePipes();
+  addQuestionBlocks();
   createGoal();
 }
 

@@ -6,12 +6,14 @@ import { createPlayer, keys, updatePlayerFacing } from './player.js';
 import { getBoxAabb, getGroupAabb, getCoinKey } from './helpers.js';
 import { updateMovingPlatforms, updateSpinningPlatforms } from './platforms.js';
 import { updateHazards } from './enemies.js';
+import { animateQuestionBlock } from './scenery.js';
 import {
   initLevel,
   platforms,
   movingPlatforms,
   spinningPlatforms,
   hazards,
+  questionBlocks,
   checkpoints,
   checkpointBoxes,
   coinLayout,
@@ -164,6 +166,9 @@ function update() {
   updateHazards(hazards, elapsed);
   updateBackgroundClouds();
   rotateCoins(delta);
+  for (const block of questionBlocks) {
+    animateQuestionBlock(block, elapsed);
+  }
 
   // Camera-relative movement
   const cameraForward = getCameraForward();

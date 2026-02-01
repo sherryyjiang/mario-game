@@ -78,14 +78,18 @@ export function createQuestionBlock() {
   mark.position.z = 16;
   block.add(mark);
 
-  block.baseY = 0;
   setShadowFlags(block);
   return block;
 }
 
 export function animateQuestionBlock(block, time) {
-  const baseY = block.baseY ?? block.position.y;
+  if (block.userData.baseY == null) {
+    block.userData.baseY = block.position.y;
+  }
+
+  const baseY = block.userData.baseY;
   block.position.y = baseY + Math.sin(time * 2) * 3;
+  block.rotation.y = time * 0.6;
 }
 
 export function createBush() {

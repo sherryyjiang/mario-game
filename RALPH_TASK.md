@@ -90,7 +90,7 @@ Place: 5+ trees, 3+ pipes, 3+ question blocks, 5+ bushes/flowers
 ### Scenery
 13. [x] 5+ trees placed
 14. [x] 3+ pipes placed
-15. [ ] 3+ question blocks with animation
+15. [x] 3+ question blocks with animation
 16. [ ] 5+ bushes/flowers placed
 17. [ ] Background hills visible
 
