@@ -1,2 +1,14 @@
 # Ralph config (may contain API key)
 .cursor/ralph-config.json
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Logs
+*.log
+
+# Editor
+.DS_Store
