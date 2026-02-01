@@ -19,13 +19,13 @@ Build a minimal 3D platformer inspired by Super Mario using Three.js with a pers
 
 ## Success Criteria
 
-1. [ ] `vite` dev server runs and renders ground segments, platform, player.
-2. [ ] Arrow keys move player left/right at 5 units per frame.
-3. [ ] Gravity (-0.5 per frame) and jump (velocity 12) work.
-4. [ ] Player lands only on ground segments (gap is pass-through).
-5. [ ] One-way platform works from above while falling.
-6. [ ] Falling below y=0 shows “You died!” and resets after 1s.
-7. [ ] Player clamped to x range 15–785.
+1. [x] `vite` dev server runs and renders ground segments, platform, player.
+2. [x] Arrow keys move player left/right at 5 units per frame.
+3. [x] Gravity (-0.5 per frame) and jump (velocity 12) work.
+4. [x] Player lands only on ground segments (gap is pass-through).
+5. [x] One-way platform works from above while falling.
+6. [x] Falling below y=0 shows “You died!” and resets after 1s.
+7. [x] Player clamped to x range 15–785.
 
 ## Defaults
 

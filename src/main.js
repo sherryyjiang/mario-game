@@ -1,295 +1,241 @@
 import * as THREE from 'three';
-import { stepJumpState } from './jump.js';
 
 // Configuration
 const CONFIG = {
-  planetRadius: 5,
-  characterSize: 0.5,
-  cameraDistance: 6,
-  cameraHeight: 2,
-  moveSpeed: 3,
-  cameraLerpFactor: 0.1,
-  gravityStrength: 20,
-  jumpSpeed: 8,
+  viewWidth: 800,
+  viewHeight: 400,
+  viewCenterX: 400,
+  viewCenterY: 200,
+  groundTopY: 50,
+  playerWidth: 30,
+  playerHeight: 40,
+  playerStartX: 50,
+  gapStartX: 350,
+  gapEndX: 470,
+  platformCenterX: 350,
+  platformY: 250,
+  platformWidth: 100,
+  platformHeight: 15,
+  moveSpeed: 5,
+  gravity: -0.5,
+  jumpVelocity: 12,
+  minX: 15,
+  maxX: 785,
+  backgroundColor: 0x87ceeb,
+  groundColor: 0x8b4513,
+  playerColor: 0xff0000,
+  platformColor: 0x228b22,
 };
 
 // Scene setup
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x1a1a2e);
+scene.background = new THREE.Color(CONFIG.backgroundColor);
 
-// Camera
-const camera = new THREE.PerspectiveCamera(
-  60,
-  window.innerWidth / window.innerHeight,
-  0.1,
-  1000
-);
+// Camera - perspective looking at XY plane
+const aspect = CONFIG.viewWidth / CONFIG.viewHeight;
+const camera = new THREE.PerspectiveCamera(45, aspect, 0.1, 2000);
+// Position camera to see the 800x400 area
+// Distance calculation: tan(22.5deg) = (400/2) / distance -> distance ≈ 483
+camera.position.set(CONFIG.viewCenterX, CONFIG.viewCenterY, 600);
+camera.lookAt(CONFIG.viewCenterX, CONFIG.viewCenterY, 0);
 
 // Renderer
 const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(CONFIG.viewWidth, CONFIG.viewHeight);
 document.body.appendChild(renderer.domElement);
 
 // Lighting
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
 scene.add(ambientLight);
 
 const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-directionalLight.position.set(10, 10, 10);
+directionalLight.position.set(400, 300, 500);
 scene.add(directionalLight);
 
-// Planet
-const planetGeometry = new THREE.SphereGeometry(CONFIG.planetRadius, 64, 64);
-const planetMaterial = new THREE.MeshStandardMaterial({
-  color: 0x4a9c6d,
-  roughness: 0.8,
-  metalness: 0.2,
-});
-const planet = new THREE.Mesh(planetGeometry, planetMaterial);
-scene.add(planet);
-
-// Character (simple capsule-like shape)
-const characterGroup = new THREE.Group();
-
-// Body
-const bodyGeometry = new THREE.CapsuleGeometry(
-  CONFIG.characterSize * 0.4,
-  CONFIG.characterSize * 0.6,
-  8,
-  16
+// Ground segment 1 (left of gap)
+const groundLeft = new THREE.Mesh(
+  new THREE.BoxGeometry(CONFIG.gapStartX, CONFIG.groundTopY, 20),
+  new THREE.MeshStandardMaterial({ color: CONFIG.groundColor })
 );
-const bodyMaterial = new THREE.MeshStandardMaterial({
-  color: 0xe63946,
-  roughness: 0.5,
-});
-const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-body.position.y = CONFIG.characterSize * 0.5;
-characterGroup.add(body);
+groundLeft.position.set(CONFIG.gapStartX / 2, CONFIG.groundTopY / 2, 0);
+scene.add(groundLeft);
 
-// Eyes (to show facing direction)
-const eyeGeometry = new THREE.SphereGeometry(0.08, 8, 8);
-const eyeMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
+// Ground segment 2 (right of gap)
+const groundRightWidth = CONFIG.viewWidth - CONFIG.gapEndX;
+const groundRight = new THREE.Mesh(
+  new THREE.BoxGeometry(groundRightWidth, CONFIG.groundTopY, 20),
+  new THREE.MeshStandardMaterial({ color: CONFIG.groundColor })
+);
+groundRight.position.set(CONFIG.gapEndX + groundRightWidth / 2, CONFIG.groundTopY / 2, 0);
+scene.add(groundRight);
 
-const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-leftEye.position.set(-0.1, CONFIG.characterSize * 0.7, 0.25);
-characterGroup.add(leftEye);
+// Floating platform (green)
+const platform = new THREE.Mesh(
+  new THREE.BoxGeometry(CONFIG.platformWidth, CONFIG.platformHeight, 20),
+  new THREE.MeshStandardMaterial({ color: CONFIG.platformColor })
+);
+platform.position.set(CONFIG.platformCenterX, CONFIG.platformY, 0);
+scene.add(platform);
 
-const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-rightEye.position.set(0.1, CONFIG.characterSize * 0.7, 0.25);
-characterGroup.add(rightEye);
+// Player (red box)
+const player = new THREE.Mesh(
+  new THREE.BoxGeometry(CONFIG.playerWidth, CONFIG.playerHeight, 20),
+  new THREE.MeshStandardMaterial({ color: CONFIG.playerColor })
+);
 
-scene.add(characterGroup);
-
-// Position character on planet surface
-const initialUp = new THREE.Vector3(0, 1, 0);
-characterGroup.position.copy(initialUp.clone().multiplyScalar(CONFIG.planetRadius));
-
-// Jump state
-let currentRadius = characterGroup.position.length();
-let verticalVelocity = 0;
+// Player state
+let playerX = CONFIG.playerStartX;
+let playerY = CONFIG.groundTopY + CONFIG.playerHeight / 2;
+let velocityY = 0;
 let isGrounded = true;
-let jumpQueued = false;
+let isDead = false;
+
+// Update player mesh position
+function updatePlayerPosition() {
+  player.position.set(playerX, playerY, 0);
+}
+updatePlayerPosition();
+scene.add(player);
+
+// Death message element
+const deathMessage = document.getElementById('death-message');
 
 // Input state
 const keys = {
-  w: false,
-  a: false,
-  s: false,
-  d: false,
+  left: false,
+  right: false,
+  up: false,
 };
-
-// Track character's forward direction on the tangent plane
-let characterForward = new THREE.Vector3(1, 0, 0);
-
-// Camera target for smooth following
-const cameraTargetPosition = new THREE.Vector3();
-const cameraTargetLookAt = new THREE.Vector3();
 
 // Event listeners
 window.addEventListener('keydown', (e) => {
-  const key = e.key.toLowerCase();
-  if (key in keys) keys[key] = true;
-  if (e.code === 'Space' && !e.repeat) {
-    jumpQueued = true;
-  }
+  if (e.key === 'ArrowLeft') keys.left = true;
+  if (e.key === 'ArrowRight') keys.right = true;
+  if (e.key === 'ArrowUp') keys.up = true;
 });
 
 window.addEventListener('keyup', (e) => {
-  const key = e.key.toLowerCase();
-  if (key in keys) keys[key] = false;
+  if (e.key === 'ArrowLeft') keys.left = false;
+  if (e.key === 'ArrowRight') keys.right = false;
+  if (e.key === 'ArrowUp') keys.up = false;
 });
 
-window.addEventListener('resize', () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-});
-
-// Get surface normal (direction from planet center to character)
-function getSurfaceNormal() {
-  return characterGroup.position.clone().normalize();
-}
-
-// Project vector onto tangent plane
-function projectOntoTangentPlane(vector, normal) {
-  const dot = vector.dot(normal);
-  return vector.clone().sub(normal.clone().multiplyScalar(dot)).normalize();
-}
-
-// Update character forward direction to stay on tangent plane
-function updateForwardOnTangentPlane(normal) {
-  characterForward = projectOntoTangentPlane(characterForward, normal);
-  if (characterForward.lengthSq() < 0.001) {
-    // Fallback if forward becomes zero
-    characterForward.set(1, 0, 0);
-    characterForward = projectOntoTangentPlane(characterForward, normal);
+// Check if player is on ground segments
+function isOnGround(x, bottomY) {
+  const halfWidth = CONFIG.playerWidth / 2;
+  const leftEdge = x - halfWidth;
+  const rightEdge = x + halfWidth;
+  
+  // Check if player is above ground level
+  if (Math.abs(bottomY - CONFIG.groundTopY) > 1) return false;
+  
+  // Check if player overlaps with left ground segment (x: 0 to gapStartX)
+  if (leftEdge < CONFIG.gapStartX && rightEdge > 0) {
+    return true;
   }
-  characterForward.normalize();
+  
+  // Check if player overlaps with right ground segment (x: gapEndX to viewWidth)
+  if (leftEdge < CONFIG.viewWidth && rightEdge > CONFIG.gapEndX) {
+    return true;
+  }
+  
+  return false;
+}
+
+// Check if player is on platform (one-way from above)
+function isOnPlatform(x, bottomY, velY) {
+  // Only collide when falling (velY <= 0)
+  if (velY > 0) return false;
+  
+  const halfWidth = CONFIG.playerWidth / 2;
+  const leftEdge = x - halfWidth;
+  const rightEdge = x + halfWidth;
+  
+  const platformLeft = CONFIG.platformCenterX - CONFIG.platformWidth / 2;
+  const platformRight = CONFIG.platformCenterX + CONFIG.platformWidth / 2;
+  const platformTop = CONFIG.platformY + CONFIG.platformHeight / 2;
+  
+  // Check horizontal overlap
+  if (rightEdge < platformLeft || leftEdge > platformRight) return false;
+  
+  // Check if player is landing on platform (within tolerance)
+  if (bottomY <= platformTop && bottomY >= platformTop - 15) {
+    return true;
+  }
+  
+  return false;
+}
+
+// Reset player
+function resetPlayer() {
+  playerX = CONFIG.playerStartX;
+  playerY = CONFIG.groundTopY + CONFIG.playerHeight / 2;
+  velocityY = 0;
+  isGrounded = true;
+  isDead = false;
+  deathMessage.style.display = 'none';
+  updatePlayerPosition();
 }
 
 // Main update loop
-function update(deltaTime) {
-  const surfaceNormal = getSurfaceNormal();
+function update() {
+  if (isDead) return;
   
-  // Keep forward direction on tangent plane
-  updateForwardOnTangentPlane(surfaceNormal);
-  
-  // Calculate right vector (perpendicular to forward and up)
-  const right = new THREE.Vector3().crossVectors(surfaceNormal, characterForward).normalize();
-  
-  // Recalculate forward to ensure orthogonality
-  characterForward.crossVectors(right, surfaceNormal).normalize();
-  
-  // Get camera-relative forward and right
-  const cameraForward = new THREE.Vector3();
-  camera.getWorldDirection(cameraForward);
-  cameraForward.y = 0; // Flatten to horizontal
-  
-  // Project camera forward onto tangent plane for camera-relative movement
-  const cameraForwardTangent = projectOntoTangentPlane(cameraForward, surfaceNormal);
-  const cameraRightTangent = new THREE.Vector3().crossVectors(surfaceNormal, cameraForwardTangent).normalize();
-  
-  // If camera forward is too aligned with surface normal, use character forward
-  let moveForward = cameraForwardTangent;
-  let moveRight = cameraRightTangent;
-  
-  if (cameraForwardTangent.lengthSq() < 0.1) {
-    moveForward = characterForward;
-    moveRight = right;
-  } else {
-    moveForward.normalize();
+  // Horizontal movement
+  if (keys.left) {
+    playerX -= CONFIG.moveSpeed;
+  }
+  if (keys.right) {
+    playerX += CONFIG.moveSpeed;
   }
   
-  // Calculate movement direction based on input
-  const moveDirection = new THREE.Vector3();
+  // Clamp X position
+  playerX = Math.max(CONFIG.minX, Math.min(CONFIG.maxX, playerX));
   
-  if (keys.w) moveDirection.add(moveForward);
-  if (keys.s) moveDirection.sub(moveForward);
-  if (keys.a) moveDirection.add(moveRight);
-  if (keys.d) moveDirection.sub(moveRight);
-
-  const jumpState = stepJumpState(
-    {
-      radius: currentRadius,
-      velocity: verticalVelocity,
-      grounded: isGrounded,
-    },
-    {
-      baseRadius: CONFIG.planetRadius,
-      jumpSpeed: CONFIG.jumpSpeed,
-      gravity: CONFIG.gravityStrength,
-      deltaTime,
-      jumpRequested: jumpQueued,
-    }
-  );
-  currentRadius = jumpState.radius;
-  verticalVelocity = jumpState.velocity;
-  isGrounded = jumpState.grounded;
-  jumpQueued = false;
-  
-  // Apply movement
-  if (moveDirection.lengthSq() > 0) {
-    moveDirection.normalize();
-    
-    // Update character forward to face movement direction
-    characterForward.lerp(moveDirection, 0.15).normalize();
-    
-    // Move character along the surface
-    const moveAmount = CONFIG.moveSpeed * deltaTime;
-    characterGroup.position.add(moveDirection.clone().multiplyScalar(moveAmount));
+  // Jump
+  if (keys.up && isGrounded) {
+    velocityY = CONFIG.jumpVelocity;
+    isGrounded = false;
   }
-
-  // Project back onto current jump radius
-  characterGroup.position.normalize().multiplyScalar(currentRadius);
   
-  // Align character to surface
-  const newNormal = getSurfaceNormal();
+  // Apply gravity
+  velocityY += CONFIG.gravity;
+  playerY += velocityY;
   
-  // Build character rotation: align up with surface normal, forward with characterForward
-  const charUp = newNormal;
-  const charRight = new THREE.Vector3().crossVectors(charUp, characterForward).normalize();
-  const charForward = new THREE.Vector3().crossVectors(charRight, charUp).normalize();
+  // Calculate player bottom
+  const playerBottom = playerY - CONFIG.playerHeight / 2;
   
-  const rotMatrix = new THREE.Matrix4();
-  rotMatrix.makeBasis(charRight, charUp, charForward);
-  characterGroup.quaternion.setFromRotationMatrix(rotMatrix);
+  // Check ground collision
+  if (isOnGround(playerX, playerBottom)) {
+    playerY = CONFIG.groundTopY + CONFIG.playerHeight / 2;
+    velocityY = 0;
+    isGrounded = true;
+  }
+  // Check platform collision (one-way from above)
+  else if (isOnPlatform(playerX, playerBottom, velocityY)) {
+    const platformTop = CONFIG.platformY + CONFIG.platformHeight / 2;
+    playerY = platformTop + CONFIG.playerHeight / 2;
+    velocityY = 0;
+    isGrounded = true;
+  }
+  else {
+    isGrounded = false;
+  }
   
-  // Update camera to follow behind character
-  updateCamera(deltaTime, newNormal);
+  // Check death (fell below y=0)
+  if (playerY < 0) {
+    isDead = true;
+    deathMessage.style.display = 'block';
+    setTimeout(resetPlayer, 1000);
+  }
+  
+  updatePlayerPosition();
 }
-
-function updateCamera(deltaTime, surfaceNormal) {
-  // Calculate ideal camera position: behind and above character
-  const behindOffset = characterForward.clone().multiplyScalar(-CONFIG.cameraDistance);
-  const upOffset = surfaceNormal.clone().multiplyScalar(CONFIG.cameraHeight);
-  
-  const idealPosition = characterGroup.position.clone()
-    .add(behindOffset)
-    .add(upOffset);
-  
-  // Smooth camera movement
-  cameraTargetPosition.lerp(idealPosition, CONFIG.cameraLerpFactor);
-  camera.position.copy(cameraTargetPosition);
-  
-  // Look at character (slightly above center)
-  const lookAtPoint = characterGroup.position.clone()
-    .add(surfaceNormal.clone().multiplyScalar(CONFIG.characterSize));
-  
-  cameraTargetLookAt.lerp(lookAtPoint, CONFIG.cameraLerpFactor);
-  camera.lookAt(cameraTargetLookAt);
-}
-
-// Initialize camera position
-function initializeCamera() {
-  const surfaceNormal = getSurfaceNormal();
-  const behindOffset = characterForward.clone().multiplyScalar(-CONFIG.cameraDistance);
-  const upOffset = surfaceNormal.clone().multiplyScalar(CONFIG.cameraHeight);
-  
-  camera.position.copy(
-    characterGroup.position.clone()
-      .add(behindOffset)
-      .add(upOffset)
-  );
-  
-  cameraTargetPosition.copy(camera.position);
-  cameraTargetLookAt.copy(characterGroup.position);
-  camera.lookAt(characterGroup.position);
-}
-
-initializeCamera();
 
 // Animation loop
-let lastTime = performance.now();
-
 function animate() {
   requestAnimationFrame(animate);
-  
-  const currentTime = performance.now();
-  const deltaTime = Math.min((currentTime - lastTime) / 1000, 0.1); // Cap delta time
-  lastTime = currentTime;
-  
-  update(deltaTime);
+  update();
   renderer.render(scene, camera);
 }
 
