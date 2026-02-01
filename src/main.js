@@ -481,12 +481,180 @@ for (let i = 0; i < 20; i++) {
   backgroundClouds.push(cloud);
 }
 
+// === Mario-Style Scenery ===
+
+function createTree(style = 'round') {
+  const tree = new THREE.Group();
+
+  const trunkGeometry = new THREE.CylinderGeometry(8, 12, 60, 8);
+  const trunkMaterial = new THREE.MeshStandardMaterial({ color: 0x8b4513 });
+  const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
+  trunk.position.y = 30;
+  tree.add(trunk);
+
+  if (style === 'round') {
+    const leafMaterial = new THREE.MeshStandardMaterial({ color: 0x228b22 });
+    const canopy1 = new THREE.Mesh(new THREE.SphereGeometry(35, 12, 12), leafMaterial);
+    canopy1.position.y = 80;
+    tree.add(canopy1);
+    const canopy2 = new THREE.Mesh(new THREE.SphereGeometry(25, 12, 12), leafMaterial);
+    canopy2.position.set(20, 70, 0);
+    tree.add(canopy2);
+    const canopy3 = new THREE.Mesh(new THREE.SphereGeometry(25, 12, 12), leafMaterial);
+    canopy3.position.set(-15, 75, 10);
+    tree.add(canopy3);
+  } else if (style === 'tall') {
+    const leafMaterial = new THREE.MeshStandardMaterial({ color: 0x2e8b57 });
+    const canopy = new THREE.Mesh(new THREE.ConeGeometry(25, 80, 8), leafMaterial);
+    canopy.position.y = 100;
+    tree.add(canopy);
+  }
+
+  setShadowFlags(tree);
+  return tree;
+}
+
+function createPipe(height = 60) {
+  const pipe = new THREE.Group();
+
+  const pipeMaterial = new THREE.MeshStandardMaterial({
+    color: 0x228b22,
+    metalness: 0.3,
+    roughness: 0.4,
+  });
+
+  const bodyGeometry = new THREE.CylinderGeometry(25, 25, height, 16);
+  const body = new THREE.Mesh(bodyGeometry, pipeMaterial);
+  body.position.y = height / 2;
+  pipe.add(body);
+
+  const rimGeometry = new THREE.CylinderGeometry(30, 30, 15, 16);
+  const rim = new THREE.Mesh(rimGeometry, pipeMaterial);
+  rim.position.y = height + 7.5;
+  pipe.add(rim);
+
+  const openingGeometry = new THREE.CylinderGeometry(20, 20, 5, 16);
+  const openingMaterial = new THREE.MeshStandardMaterial({ color: 0x000000 });
+  const opening = new THREE.Mesh(openingGeometry, openingMaterial);
+  opening.position.y = height + 12;
+  pipe.add(opening);
+
+  setShadowFlags(pipe);
+  return pipe;
+}
+
+function createQuestionBlock() {
+  const block = new THREE.Group();
+
+  const geometry = new THREE.BoxGeometry(30, 30, 30);
+  const material = new THREE.MeshStandardMaterial({
+    color: 0xffd700,
+    metalness: 0.2,
+    roughness: 0.5,
+  });
+  const cube = new THREE.Mesh(geometry, material);
+  block.add(cube);
+
+  const markGeometry = new THREE.BoxGeometry(12, 16, 4);
+  const markMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
+  const mark = new THREE.Mesh(markGeometry, markMaterial);
+  mark.position.z = 16;
+  block.add(mark);
+
+  block.baseY = 0;
+
+  setShadowFlags(block);
+  return block;
+}
+
+function animateQuestionBlock(block, time) {
+  const baseY = block.baseY ?? block.position.y;
+  block.position.y = baseY + Math.sin(time * 2) * 3;
+}
+
+function createBush() {
+  const bush = new THREE.Group();
+  const material = new THREE.MeshStandardMaterial({ color: 0x32cd32 });
+
+  const positions = [
+    [0, 0, 0],
+    [-15, -5, 5],
+    [15, -5, -5],
+    [0, 10, 0],
+  ];
+
+  for (const [x, y, z] of positions) {
+    const sphere = new THREE.Mesh(new THREE.SphereGeometry(15, 12, 12), material);
+    sphere.position.set(x, y + 15, z);
+    bush.add(sphere);
+  }
+
+  setShadowFlags(bush);
+  return bush;
+}
+
+function createFlower(petalColor = 0xff69b4) {
+  const flower = new THREE.Group();
+
+  const stemGeometry = new THREE.CylinderGeometry(2, 2, 30, 8);
+  const stemMaterial = new THREE.MeshStandardMaterial({ color: 0x228b22 });
+  const stem = new THREE.Mesh(stemGeometry, stemMaterial);
+  stem.position.y = 15;
+  flower.add(stem);
+
+  const centerGeometry = new THREE.SphereGeometry(6, 8, 8);
+  const centerMaterial = new THREE.MeshStandardMaterial({ color: 0xffff00 });
+  const center = new THREE.Mesh(centerGeometry, centerMaterial);
+  center.position.y = 35;
+  flower.add(center);
+
+  const petalGeometry = new THREE.SphereGeometry(5, 8, 8);
+  const petalMaterial = new THREE.MeshStandardMaterial({ color: petalColor });
+  for (let i = 0; i < 6; i++) {
+    const petal = new THREE.Mesh(petalGeometry, petalMaterial);
+    const angle = (i / 6) * Math.PI * 2;
+    petal.position.set(Math.cos(angle) * 10, 35, Math.sin(angle) * 10);
+    flower.add(petal);
+  }
+
+  setShadowFlags(flower);
+  return flower;
+}
+
+function createBackgroundHills() {
+  const hills = new THREE.Group();
+  const material = new THREE.MeshBasicMaterial({
+    color: 0x6b8e23,
+    fog: true,
+  });
+
+  const hillPositions = [
+    { x: -1000, z: -1500, scale: 3 },
+    { x: 500, z: -1800, scale: 4 },
+    { x: 2000, z: -1600, scale: 2.5 },
+  ];
+
+  for (const { x, z, scale } of hillPositions) {
+    const hill = new THREE.Mesh(
+      new THREE.SphereGeometry(200 * scale, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2),
+      material
+    );
+    hill.position.set(x, 0, z);
+    hill.castShadow = false;
+    hill.receiveShadow = false;
+    hills.add(hill);
+  }
+
+  return hills;
+}
+
 // === Create Level Platforms ===
 
 const platforms = [];
 const spinningPlatforms = [];
 const movingPlatforms = [];
 const hazards = [];
+const questionBlocks = [];
 const jumpPads = [];
 
 // Section 1: Cloud Approach (x: 0-1000)
@@ -691,6 +859,58 @@ createSection1();
 createSection2();
 createSection3();
 createSection4();
+
+// === Scenery (Decorative) ===
+
+function createTree(style = 'round') {
+  const tree = new THREE.Group();
+
+  const trunkMaterial = new THREE.MeshStandardMaterial({ color: 0x8b4513, roughness: 0.9, metalness: 0.05 });
+  const leafMaterial = new THREE.MeshStandardMaterial({ color: 0x228b22, roughness: 0.95, metalness: 0.0 });
+
+  const trunk = new THREE.Mesh(new THREE.CylinderGeometry(8, 12, 60, 8), trunkMaterial);
+  trunk.position.y = 30;
+  tree.add(trunk);
+
+  if (style === 'tall') {
+    const canopy = new THREE.Mesh(new THREE.ConeGeometry(28, 90, 8), leafMaterial);
+    canopy.position.y = 110;
+    tree.add(canopy);
+  } else {
+    const canopy1 = new THREE.Mesh(new THREE.SphereGeometry(35, 12, 12), leafMaterial);
+    canopy1.position.y = 80;
+    tree.add(canopy1);
+
+    const canopy2 = new THREE.Mesh(new THREE.SphereGeometry(25, 12, 12), leafMaterial);
+    canopy2.position.set(20, 70, 0);
+    tree.add(canopy2);
+
+    const canopy3 = new THREE.Mesh(new THREE.SphereGeometry(25, 12, 12), leafMaterial);
+    canopy3.position.set(-15, 75, 10);
+    tree.add(canopy3);
+  }
+
+  setShadowFlags(tree);
+  return tree;
+}
+
+function addDecorativeTrees() {
+  const treePlacements = [
+    { position: { x: 180, y: 50, z: -80 }, style: 'round' },
+    { position: { x: 480, y: 130, z: 110 }, style: 'round' },
+    { position: { x: 850, y: 140, z: -20 }, style: 'tall' },
+    { position: { x: 1250, y: 248, z: -40 }, style: 'round' },
+    { position: { x: 2250, y: 279, z: 120 }, style: 'tall' },
+  ];
+
+  for (const placement of treePlacements) {
+    const tree = createTree(placement.style);
+    tree.position.set(placement.position.x, placement.position.y, placement.position.z);
+    scene.add(tree);
+  }
+}
+
+addDecorativeTrees();
 
 // === Hazards ===
 

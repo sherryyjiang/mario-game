@@ -539,7 +539,7 @@ function createSparkleSystem() {
 18. [x] Goombas have walking animation (feet movement)
 
 ### Part 4: Scenery
-19. [ ] At least 5 decorative trees placed in world
+19. [x] At least 5 decorative trees placed in world
 20. [ ] At least 3 green pipes placed in world
 21. [ ] At least 3 question blocks with bounce animation
 22. [ ] At least 5 bushes or flowers placed in world
