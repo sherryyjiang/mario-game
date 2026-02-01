@@ -694,11 +694,70 @@ createSection4();
 
 // === Hazards ===
 
-const hazardMaterial = new THREE.MeshStandardMaterial({
-  color: CONFIG.hazardColor,
-  emissive: 0xff0000,
-  emissiveIntensity: 0.3,
-});
+function createGoomba() {
+  const goomba = new THREE.Group();
+
+  const bodyGeometry = new THREE.SphereGeometry(20, 16, 12);
+  bodyGeometry.scale(1, 0.7, 1);
+  const bodyMaterial = new THREE.MeshStandardMaterial({ color: 0x8b4513 });
+  const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+  body.position.y = 15;
+  goomba.add(body);
+
+  const bellyGeometry = new THREE.SphereGeometry(15, 16, 8, 0, Math.PI * 2, Math.PI / 2);
+  const bellyMaterial = new THREE.MeshStandardMaterial({ color: 0xd2b48c });
+  const belly = new THREE.Mesh(bellyGeometry, bellyMaterial);
+  belly.position.y = 10;
+  belly.rotation.x = Math.PI;
+  goomba.add(belly);
+
+  const eyeGeometry = new THREE.SphereGeometry(5, 8, 8);
+  const eyeMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
+  const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+  leftEye.position.set(-8, 20, 15);
+  goomba.add(leftEye);
+  const rightEye = leftEye.clone();
+  rightEye.position.set(8, 20, 15);
+  goomba.add(rightEye);
+
+  const pupilGeometry = new THREE.SphereGeometry(2.5, 8, 8);
+  const pupilMaterial = new THREE.MeshStandardMaterial({ color: 0x000000 });
+  const leftPupil = new THREE.Mesh(pupilGeometry, pupilMaterial);
+  leftPupil.position.set(-8, 20, 19);
+  goomba.add(leftPupil);
+  const rightPupil = leftPupil.clone();
+  rightPupil.position.set(8, 20, 19);
+  goomba.add(rightPupil);
+
+  const browGeometry = new THREE.BoxGeometry(8, 2, 2);
+  const browMaterial = new THREE.MeshStandardMaterial({ color: 0x000000 });
+  const leftBrow = new THREE.Mesh(browGeometry, browMaterial);
+  leftBrow.position.set(-8, 26, 16);
+  leftBrow.rotation.z = 0.3;
+  goomba.add(leftBrow);
+  const rightBrow = leftBrow.clone();
+  rightBrow.position.set(8, 26, 16);
+  rightBrow.rotation.z = -0.3;
+  goomba.add(rightBrow);
+
+  const footGeometry = new THREE.SphereGeometry(6, 8, 8);
+  footGeometry.scale(1.5, 0.6, 1);
+  const footMaterial = new THREE.MeshStandardMaterial({ color: 0x000000 });
+  const leftFoot = new THREE.Mesh(footGeometry, footMaterial);
+  leftFoot.name = 'leftFoot';
+  leftFoot.position.set(-10, 3, 0);
+  goomba.add(leftFoot);
+  const rightFoot = leftFoot.clone();
+  rightFoot.name = 'rightFoot';
+  rightFoot.position.set(10, 3, 0);
+  goomba.add(rightFoot);
+
+  // Approximate collision bounds for AABB usage elsewhere
+  goomba.size = { width: 55, height: 40, depth: 50 };
+
+  setShadowFlags(goomba);
+  return goomba;
+}
 
 // Hazard positions across sections
 const hazardPositions = [
@@ -713,13 +772,9 @@ const hazardPositions = [
 ];
 
 for (const hpos of hazardPositions) {
-  const hazard = createBox({
-    width: 60,
-    height: 25,
-    depth: 60,
-    material: hazardMaterial.clone(),
-  });
+  const hazard = createGoomba();
   hazard.position.set(hpos.x, hpos.y, hpos.z);
+  hazard.baseY = hpos.y;
   if (hpos.patrol) {
     hazard.basePosition = new THREE.Vector3(hpos.x, hpos.y, hpos.z);
     hazard.patrolDistance = hpos.patrolDist;

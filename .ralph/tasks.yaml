@@ -3,140 +3,168 @@
 # DO NOT EDIT - regenerated on task file change
 
 source_file: RALPH_TASK.md
-source_mtime: 1769930228
-generated_at: 2026-02-01T07:18:16Z
+source_mtime: 1769932021
+generated_at: 2026-02-01T07:48:03Z
 
 tasks:
-  - id: "line_114"
-    line_number: 114
+  - id: "line_518"
+    line_number: 518
     status: completed
     parallel_group: 999999
-    description: Download or source at least 5 sky/castle themed assets
+    description: Camera orbits around player as center point
     indent_level: 0
     raw_marker: 1.
-  - id: "line_115"
-    line_number: 115
+  - id: "line_519"
+    line_number: 519
     status: completed
     parallel_group: 999999
-    description: Create `public/assets/` folder and organize images
+    description: Camera stays at fixed distance behind and above player
     indent_level: 0
     raw_marker: 2.
-  - id: "line_116"
-    line_number: 116
+  - id: "line_520"
+    line_number: 520
     status: completed
     parallel_group: 999999
-    description: Cloud platforms use white/fluffy texture or material
+    description: Camera follows smoothly with lerp damping
     indent_level: 0
     raw_marker: 3.
-  - id: "line_117"
-    line_number: 117
+  - id: "line_521"
+    line_number: 521
     status: completed
     parallel_group: 999999
-    description: Rainbow platforms use gradient/colorful material
+    description: Mouse drag rotates camera around player
     indent_level: 0
     raw_marker: 4.
-  - id: "line_118"
-    line_number: 118
+  - id: "line_522"
+    line_number: 522
     status: completed
     parallel_group: 999999
-    description: Castle section uses stone/brick texture
+    description: W/up moves player AWAY from camera (into screen)
     indent_level: 0
     raw_marker: 5.
-  - id: "line_121"
-    line_number: 121
+  - id: "line_523"
+    line_number: 523
     status: completed
     parallel_group: 999999
-    description: Expand world bounds to x: 0–4000, z: -400–400
+    description: A/left moves player to camera's LEFT
     indent_level: 0
     raw_marker: 6.
-  - id: "line_122"
-    line_number: 122
+  - id: "line_524"
+    line_number: 524
     status: completed
     parallel_group: 999999
-    description: Camera follows player smoothly across larger world
+    description: Character rotates smoothly to face movement direction
     indent_level: 0
     raw_marker: 7.
-  - id: "line_123"
-    line_number: 123
+  - id: "line_525"
+    line_number: 525
     status: completed
     parallel_group: 999999
-    description: Section 1 (Clouds): 8+ platforms, introductory difficulty
+    description: Camera doesn't clip through ground (stays above minimum height)
     indent_level: 0
     raw_marker: 8.
-  - id: "line_124"
-    line_number: 124
+  - id: "line_528"
+    line_number: 528
     status: completed
     parallel_group: 999999
-    description: Section 2 (Rainbow): 8+ platforms, 2+ moving platforms
+    description: Soft shadows enabled (PCFSoftShadowMap)
     indent_level: 0
     raw_marker: 9.
-  - id: "line_125"
-    line_number: 125
+  - id: "line_529"
+    line_number: 529
     status: completed
     parallel_group: 999999
-    description: Section 3 (Castle Exterior): 10+ platforms, vertical climbing
+    description: Post-processing pipeline: bloom + anti-aliasing
     indent_level: 0
     raw_marker: 10.
-  - id: "line_126"
-    line_number: 126
+  - id: "line_530"
+    line_number: 530
     status: completed
     parallel_group: 999999
-    description: Section 4 (Castle/Rooftop): 6+ platforms, final goal
+    description: Hemisphere light + directional sun light
     indent_level: 0
     raw_marker: 11.
-  - id: "line_127"
-    line_number: 127
+  - id: "line_531"
+    line_number: 531
     status: completed
     parallel_group: 999999
-    description: Add 8-10 checkpoints spread across all sections
+    description: Atmospheric fog matching sky color
     indent_level: 0
     raw_marker: 12.
-  - id: "line_128"
-    line_number: 128
+  - id: "line_532"
+    line_number: 532
     status: completed
     parallel_group: 999999
-    description: Add 50+ coins total across all sections
+    description: Player and platforms cast/receive shadows
     indent_level: 0
     raw_marker: 13.
-  - id: "line_129"
-    line_number: 129
-    status: completed
+  - id: "line_535"
+    line_number: 535
+    status: pending
     parallel_group: 999999
-    description: Add 4+ hazards appropriate to theme
+    description: Goombas have rounded body (not box)
     indent_level: 0
     raw_marker: 14.
-  - id: "line_132"
-    line_number: 132
-    status: completed
+  - id: "line_536"
+    line_number: 536
+    status: pending
     parallel_group: 999999
-    description: Sky background is gradient blue (not flat color)
+    description: Goombas have eyes, pupils, and angry eyebrows
     indent_level: 0
     raw_marker: 15.
-  - id: "line_133"
-    line_number: 133
-    status: completed
+  - id: "line_537"
+    line_number: 537
+    status: pending
     parallel_group: 999999
-    description: At least one parallax cloud layer in background
+    description: Goombas have two feet
     indent_level: 0
     raw_marker: 16.
-  - id: "line_134"
-    line_number: 134
-    status: completed
+  - id: "line_538"
+    line_number: 538
+    status: pending
     parallel_group: 999999
-    description: The Big House/Castle structure visible as centerpiece
+    description: Goombas have idle bounce animation
     indent_level: 0
     raw_marker: 17.
-  - id: "line_135"
-    line_number: 135
-    status: completed
+  - id: "line_539"
+    line_number: 539
+    status: pending
     parallel_group: 999999
-    description: Spinning platforms implemented and functional
+    description: Goombas have walking animation (feet movement)
     indent_level: 0
     raw_marker: 18.
-  - id: "line_136"
-    line_number: 136
-    status: completed
+  - id: "line_542"
+    line_number: 542
+    status: pending
     parallel_group: 999999
-    description: Player visual upgraded from plain red box
+    description: At least 5 decorative trees placed in world
     indent_level: 0
     raw_marker: 19.
+  - id: "line_543"
+    line_number: 543
+    status: pending
+    parallel_group: 999999
+    description: At least 3 green pipes placed in world
+    indent_level: 0
+    raw_marker: 20.
+  - id: "line_544"
+    line_number: 544
+    status: pending
+    parallel_group: 999999
+    description: At least 3 question blocks with bounce animation
+    indent_level: 0
+    raw_marker: 21.
+  - id: "line_545"
+    line_number: 545
+    status: pending
+    parallel_group: 999999
+    description: At least 5 bushes or flowers placed in world
+    indent_level: 0
+    raw_marker: 22.
+  - id: "line_546"
+    line_number: 546
+    status: pending
+    parallel_group: 999999
+    description: Background hills/mountains visible in distance
+    indent_level: 0
+    raw_marker: 23.
