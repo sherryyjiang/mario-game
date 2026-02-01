@@ -17,13 +17,13 @@ Build a minimal Three.js prototype inspired by Mario 64/Galaxy. The scene has a 
 
 ## Success Criteria
 
-1. [ ] `vite` dev server runs and renders the planet + character.
-2. [ ] Character is grounded on the planet via custom gravity.
-3. [ ] WASD moves the character around the sphere surface (camera-relative).
-4. [ ] Camera follows behind the character and rotates smoothly with movement.
-5. [ ] Movement is frame-rate independent (delta time based).
-6. [ ] Controls feel responsive (no visible jitter or input lag).
-7. [ ] Camera maintains a stable offset and does not flip at poles.
+1. [x] `vite` dev server runs and renders the planet + character.
+2. [x] Character is grounded on the planet via custom gravity.
+3. [x] WASD moves the character around the sphere surface (camera-relative).
+4. [x] Camera follows behind the character and rotates smoothly with movement.
+5. [x] Movement is frame-rate independent (delta time based).
+6. [x] Controls feel responsive (no visible jitter or input lag).
+7. [x] Camera maintains a stable offset and does not flip at poles.
 
 ## Defaults
 
