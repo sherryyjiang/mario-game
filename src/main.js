@@ -1187,12 +1187,37 @@ function updateSpinningPlatforms(delta) {
   }
 }
 
+function animateGoomba(goomba, time, isMoving) {
+  const baseY = goomba.baseY ?? goomba.position.y;
+  goomba.position.y = baseY + Math.sin(time * 3) * 2;
+
+  const leftFoot = goomba.getObjectByName('leftFoot');
+  const rightFoot = goomba.getObjectByName('rightFoot');
+
+  if (isMoving) {
+    if (leftFoot) leftFoot.position.y = 3 + Math.sin(time * 10) * 3;
+    if (rightFoot) rightFoot.position.y = 3 + Math.cos(time * 10) * 3;
+
+    const squash = 1 + Math.sin(time * 8) * 0.1;
+    goomba.scale.set(squash, 1 / squash, squash);
+    return;
+  }
+
+  if (leftFoot) leftFoot.position.y = 3;
+  if (rightFoot) rightFoot.position.y = 3;
+  goomba.scale.set(1, 1, 1);
+}
+
 function updateHazards() {
   for (const hazard of hazards) {
+    let isMoving = false;
     if (hazard.isPatrolling && hazard.basePosition) {
       const offset = getPatrolOffset(elapsed, hazard.patrolSpeed, hazard.patrolDistance);
       hazard.position.x = hazard.basePosition.x + offset;
+      isMoving = true;
     }
+
+    animateGoomba(hazard, elapsed, isMoving);
   }
 }
 

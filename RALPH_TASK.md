@@ -532,11 +532,11 @@ function createSparkleSystem() {
 13. [x] Player and platforms cast/receive shadows
 
 ### Part 3: Goomba Enemies
-14. [ ] Goombas have rounded body (not box)
-15. [ ] Goombas have eyes, pupils, and angry eyebrows
-16. [ ] Goombas have two feet
-17. [ ] Goombas have idle bounce animation
-18. [ ] Goombas have walking animation (feet movement)
+14. [x] Goombas have rounded body (not box)
+15. [x] Goombas have eyes, pupils, and angry eyebrows
+16. [x] Goombas have two feet
+17. [x] Goombas have idle bounce animation
+18. [x] Goombas have walking animation (feet movement)
 
 ### Part 4: Scenery
 19. [ ] At least 5 decorative trees placed in world

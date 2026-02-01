@@ -116,6 +116,14 @@ This is how Ralph maintains continuity across iterations.
 **Tests:** `npm test` passes  
 **Build test:** `npm run build` passes
 
+### 2026-02-01 - Ralph Iteration 1 (Part 3) completed
+**Goomba enemy redesign implemented:**
+- Replaced hazard/enemy boxes with Goomba-style enemies built from primitives (rounded body, eyes/pupils, eyebrows, feet)
+- Added idle bounce + walking foot animation (when patrolling)
+
+**Tests:** `npm test` passes  
+**Build test:** `npm run build` passes
+
 ### 2026-02-01 15:48:05
 **Session 1 ended** - 🔄 Context rotation (token limit reached)
 
