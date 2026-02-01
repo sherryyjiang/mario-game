@@ -70,25 +70,25 @@ Place: 5+ trees, 3+ pipes, 3+ question blocks, 5+ bushes/flowers
 ## Success Criteria
 
 ### Camera
-1. [ ] Camera orbits player, stays behind/above
-2. [ ] Smooth follow with damping
-3. [ ] Mouse drag rotates camera around player
-4. [ ] W moves player AWAY from camera
-5. [ ] Character rotates smoothly toward movement
+1. [x] Camera orbits player, stays behind/above
+2. [x] Smooth follow with damping
+3. [x] Mouse drag rotates camera around player
+4. [x] W moves player AWAY from camera
+5. [x] Character rotates smoothly toward movement
 
 ### Visuals
-6. [ ] Soft shadows enabled
-7. [ ] Post-processing: bloom + anti-aliasing
-8. [ ] Hemisphere + directional lighting
-9. [ ] Fog matching sky
+6. [x] Soft shadows enabled
+7. [x] Post-processing: bloom + anti-aliasing
+8. [x] Hemisphere + directional lighting
+9. [x] Fog matching sky
 
 ### Enemies
-10. [ ] Goombas have rounded body, eyes, eyebrows, feet
-11. [ ] Goombas have idle bounce
-12. [ ] Goombas animate when walking
+10. [x] Goombas have rounded body, eyes, eyebrows, feet
+11. [x] Goombas have idle bounce
+12. [x] Goombas animate when walking
 
 ### Scenery
-13. [ ] 5+ trees placed
+13. [x] 5+ trees placed
 14. [ ] 3+ pipes placed
 15. [ ] 3+ question blocks with animation
 16. [ ] 5+ bushes/flowers placed
