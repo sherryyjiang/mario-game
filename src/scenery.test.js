@@ -1,5 +1,14 @@
 import * as THREE from 'three';
-import { createBubbleEmitter, advanceBubbleParticles, createFish, updateFishSwim } from './scenery.js';
+import {
+  createBubbleEmitter,
+  advanceBubbleParticles,
+  createFish,
+  updateFishSwim,
+  createTreasureChest,
+  animateChestOpen,
+  createChestSparkleBurst,
+  updateChestSparkleBurst,
+} from './scenery.js';
 
 test('createBubbleEmitter builds a bounded bubble group', () => {
   const emitter = createBubbleEmitter({ count: 4, height: 20, radius: 3 });
@@ -33,4 +42,36 @@ test('updateFishSwim orbits around base position', () => {
   expect(fish.position.x).toBeCloseTo(15, 5);
   expect(fish.position.y).toBeCloseTo(20, 5);
   expect(fish.position.z).toBeCloseTo(30, 5);
+});
+
+test('createTreasureChest includes lid pivot and collision size', () => {
+  const chest = createTreasureChest();
+
+  expect(chest.userData.lidPivot).toBeInstanceOf(THREE.Group);
+  expect(chest.userData.collisionSize).toEqual({ width: 44, height: 30, depth: 28 });
+  expect(chest.userData.opened).toBe(false);
+});
+
+test('animateChestOpen completes opening and reveals glow', () => {
+  const chest = createTreasureChest();
+  chest.userData.opening = true;
+
+  animateChestOpen(chest, 0.25);
+  expect(chest.userData.opened).toBe(false);
+
+  animateChestOpen(chest, 0.3);
+  expect(chest.userData.opened).toBe(true);
+  expect(chest.userData.innerGlow.visible).toBe(true);
+});
+
+test('updateChestSparkleBurst finishes after duration', () => {
+  const burst = createChestSparkleBurst({ count: 6, duration: 0.5 });
+  expect(burst.userData.ring).toBeInstanceOf(THREE.Mesh);
+
+  const early = updateChestSparkleBurst(burst, 0.2);
+  expect(early).toBe(false);
+
+  const done = updateChestSparkleBurst(burst, 0.4);
+  expect(done).toBe(true);
+  expect(burst.visible).toBe(false);
 });

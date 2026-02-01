@@ -425,22 +425,180 @@ export function createTreasureChest() {
   const group = new THREE.Group();
   const bodyMat = new THREE.MeshStandardMaterial({ color: 0x7a4a2b, roughness: 0.8 });
   const trimMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, roughness: 0.4, metalness: 0.6 });
+  const glowMat = new THREE.MeshStandardMaterial({
+    color: 0xf6c453,
+    emissive: 0xf6c453,
+    emissiveIntensity: 0.1,
+    transparent: true,
+    opacity: 0,
+  });
 
   const base = new THREE.Mesh(new THREE.BoxGeometry(40, 20, 24), bodyMat);
   base.position.y = 10;
   group.add(base);
 
+  const lidPivot = new THREE.Group();
+  lidPivot.position.set(0, 20, -12);
+  group.add(lidPivot);
+
   const lid = new THREE.Mesh(new THREE.CylinderGeometry(12, 12, 40, 10, 1, false, 0, Math.PI), bodyMat);
   lid.rotation.z = Math.PI / 2;
-  lid.position.y = 25;
-  group.add(lid);
+  lid.position.set(0, 6, 12);
+  lidPivot.add(lid);
 
   const trim = new THREE.Mesh(new THREE.BoxGeometry(42, 4, 26), trimMat);
   trim.position.y = 18;
   group.add(trim);
 
+  const innerGlow = new THREE.Mesh(new THREE.BoxGeometry(26, 8, 14), glowMat);
+  innerGlow.position.set(0, 10, 0);
+  innerGlow.visible = false;
+  group.add(innerGlow);
+
+  group.userData.lidPivot = lidPivot;
+  group.userData.innerGlow = innerGlow;
+  group.userData.opened = false;
+  group.userData.opening = false;
+  group.userData.openProgress = 0;
+  group.userData.openDuration = 0.5;
+  group.userData.collisionSize = { width: 44, height: 30, depth: 28 };
+
   setShadowFlags(group);
+  innerGlow.castShadow = false;
+  innerGlow.receiveShadow = false;
   return group;
+}
+
+export function animateChestOpen(chest, delta) {
+  if (!chest?.userData || chest.userData.opened || !chest.userData.opening) return;
+
+  const duration = chest.userData.openDuration ?? 0.5;
+  const step = duration > 0 ? (delta ?? 0) / duration : 1;
+  const progress = Math.min(1, (chest.userData.openProgress ?? 0) + step);
+  chest.userData.openProgress = progress;
+
+  const targetAngle = -THREE.MathUtils.degToRad(110);
+  if (chest.userData.lidPivot) {
+    chest.userData.lidPivot.rotation.x = targetAngle * progress;
+  }
+
+  if (chest.userData.innerGlow) {
+    chest.userData.innerGlow.visible = true;
+    const material = chest.userData.innerGlow.material;
+    if (material) {
+      material.opacity = progress;
+      material.emissiveIntensity = 0.2 + progress * 0.8;
+    }
+  }
+
+  if (progress >= 1) {
+    chest.userData.opened = true;
+    chest.userData.opening = false;
+    if (!chest.userData.sparkleBurst) {
+      const burst = createChestSparkleBurst();
+      burst.position.set(0, 18, 0);
+      chest.add(burst);
+      chest.userData.sparkleBurst = burst;
+    }
+  }
+}
+
+export function createChestSparkleBurst({
+  count = 14,
+  duration = 0.8,
+  spread = 18,
+  rise = 26,
+} = {}) {
+  const group = new THREE.Group();
+  const material = new THREE.MeshStandardMaterial({
+    color: 0xffd36a,
+    emissive: 0xffd36a,
+    emissiveIntensity: 1.1,
+    transparent: true,
+    opacity: 1,
+  });
+  const ringMaterial = new THREE.MeshStandardMaterial({
+    color: 0xfff1b3,
+    emissive: 0xfff1b3,
+    emissiveIntensity: 1.2,
+    transparent: true,
+    opacity: 0.9,
+    side: THREE.DoubleSide,
+  });
+  const geometry = new THREE.OctahedronGeometry(1.8, 0);
+  const particles = [];
+
+  const ring = new THREE.Mesh(new THREE.RingGeometry(2, 3.6, 24), ringMaterial);
+  ring.rotation.x = -Math.PI / 2;
+  ring.position.set(0, 2, 0);
+  ring.scale.setScalar(0.5);
+  ring.castShadow = false;
+  ring.receiveShadow = false;
+  group.add(ring);
+
+  for (let i = 0; i < count; i++) {
+    const sparkle = new THREE.Mesh(geometry, material.clone());
+    sparkle.position.set(0, 0, 0);
+    sparkle.userData.velocity = new THREE.Vector3(
+      (Math.random() - 0.5) * spread,
+      rise * (0.6 + Math.random() * 0.6),
+      (Math.random() - 0.5) * spread
+    );
+    sparkle.userData.spin = new THREE.Vector3(
+      (Math.random() - 0.5) * 4,
+      (Math.random() - 0.5) * 4,
+      (Math.random() - 0.5) * 4
+    );
+    particles.push(sparkle);
+    group.add(sparkle);
+  }
+
+  group.userData.particles = particles;
+  group.userData.ring = ring;
+  group.userData.duration = duration;
+  group.userData.age = 0;
+  return group;
+}
+
+export function updateChestSparkleBurst(group, delta) {
+  if (!group?.userData?.particles) return true;
+
+  const step = Number.isFinite(delta) ? delta : 0;
+  group.userData.age += step;
+  const duration = group.userData.duration ?? 0.8;
+  const t = Math.min(1, duration > 0 ? group.userData.age / duration : 1);
+
+  for (const sparkle of group.userData.particles) {
+    const velocity = sparkle.userData.velocity ?? new THREE.Vector3();
+    sparkle.position.x += velocity.x * step;
+    sparkle.position.y += velocity.y * step;
+    sparkle.position.z += velocity.z * step;
+
+    sparkle.rotation.x += (sparkle.userData.spin?.x ?? 0) * step;
+    sparkle.rotation.y += (sparkle.userData.spin?.y ?? 0) * step;
+    sparkle.rotation.z += (sparkle.userData.spin?.z ?? 0) * step;
+
+    if (sparkle.material) {
+      sparkle.material.opacity = 1 - t;
+    }
+    sparkle.scale.setScalar(1 - t * 0.6);
+  }
+
+  if (group.userData.ring) {
+    const ring = group.userData.ring;
+    const scale = 0.5 + t * 2.2;
+    ring.scale.setScalar(scale);
+    if (ring.material) {
+      ring.material.opacity = 0.9 * (1 - t);
+    }
+  }
+
+  if (t >= 1) {
+    group.visible = false;
+    return true;
+  }
+
+  return false;
 }
 
 export function createClam() {

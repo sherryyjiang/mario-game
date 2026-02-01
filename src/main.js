@@ -6,7 +6,13 @@ import { createPlayer, keys, updatePlayerFacing, updatePlayerSwimPose } from './
 import { getBoxAabb, getGroupAabb, getCoinKey } from './helpers.js';
 import { updateMovingPlatforms, updateSpinningPlatforms } from './platforms.js';
 import { updateHazards, updateEelBoss } from './enemies.js';
-import { animateQuestionBlock, createBubbleEmitter, advanceBubbleParticles } from './scenery.js';
+import {
+  animateQuestionBlock,
+  createBubbleEmitter,
+  advanceBubbleParticles,
+  animateChestOpen,
+  updateChestSparkleBurst,
+} from './scenery.js';
 import { loadLevel, getLevelList, getCurrentLevelKey } from './levelManager.js';
 import {
   collectCoins,
@@ -20,6 +26,7 @@ import {
   isQuestionBlockHitFromBelow,
   applyQuestionBlockHit,
   isLandingOnTop,
+  isChestReached,
   updateSwimVelocityY,
   shouldTriggerFallDeath,
   updateCheckpoint,
@@ -46,6 +53,7 @@ let isDead = false;
 let isRidingMovingPlatform = false;
 let isWin = false;
 let score = 0;
+let treasureOpenedCount = 0;
 let activeCheckpoint = null;
 
 // Coins
@@ -154,7 +162,29 @@ function updateCheckpointColors() {
   }
 }
 
+function getTreasureProgress() {
+  const chests = currentLevel.treasureChests;
+  if (!chests || chests.length === 0) return null;
+
+  const opened = chests.filter((chest) => chest.userData?.opened).length;
+  return { opened, total: chests.length };
+}
+
 function updateGoalStatus() {
+  const treasureProgress = getTreasureProgress();
+  if (treasureProgress) {
+    treasureOpenedCount = treasureProgress.opened;
+    if (goalStatus) {
+      goalStatus.textContent = `Chests: ${treasureProgress.opened}/${treasureProgress.total}`;
+      goalStatus.classList.toggle('treasure-complete', treasureProgress.opened >= treasureProgress.total);
+    }
+    return;
+  }
+
+  if (goalStatus) {
+    goalStatus.classList.remove('treasure-complete');
+  }
+
   const requiredCoins = levelSettings.goalRequiredCoins ?? CONFIG.goalRequiredCoins;
   const unlocked = isGoalUnlocked(score, requiredCoins);
   if (currentLevel.goal?.material) {
@@ -457,6 +487,34 @@ function update() {
     updateCheckpointColors();
   }
 
+  if (currentLevel.treasureChests?.length) {
+    for (const chest of currentLevel.treasureChests) {
+      const chestBox = getAabbFromCenter(
+        chest.position,
+        chest.userData?.collisionSize ?? { width: 40, height: 26, depth: 24 }
+      );
+      if (!chest.userData.opened && isChestReached(playerBox, chestBox)) {
+        chest.userData.opening = true;
+      }
+      if (chest.userData.opening) {
+        animateChestOpen(chest, delta);
+      }
+      if (chest.userData.sparkleBurst) {
+        const done = updateChestSparkleBurst(chest.userData.sparkleBurst, delta);
+        if (done) {
+          chest.remove(chest.userData.sparkleBurst);
+          chest.userData.sparkleBurst = null;
+        }
+      }
+    }
+
+    const treasureProgress = getTreasureProgress();
+    if (treasureProgress && treasureProgress.opened !== treasureOpenedCount) {
+      treasureOpenedCount = treasureProgress.opened;
+      updateGoalStatus();
+    }
+  }
+
   // Hazard collision
   for (const hazard of currentLevel.hazards) {
     const hazardBox = getBoxAabb(hazard);
@@ -478,12 +536,21 @@ function update() {
   }
 
   // Goal collision
-  const goalBox = getBoxAabb(currentLevel.goal);
-  const goalUnlocked = isGoalUnlocked(score, levelSettings.goalRequiredCoins ?? CONFIG.goalRequiredCoins);
-  if (goalUnlocked && isGoalReached(playerBox, goalBox)) {
-    isWin = true;
-    winMessage.style.display = 'block';
-    setTimeout(() => resetPlayer({ resetCheckpoint: true }), 2000);
+  const treasureProgress = getTreasureProgress();
+  if (treasureProgress) {
+    if (treasureProgress.opened >= treasureProgress.total) {
+      isWin = true;
+      winMessage.style.display = 'block';
+      setTimeout(() => resetPlayer({ resetCheckpoint: true }), 2000);
+    }
+  } else if (currentLevel.goal) {
+    const goalBox = getBoxAabb(currentLevel.goal);
+    const goalUnlocked = isGoalUnlocked(score, levelSettings.goalRequiredCoins ?? CONFIG.goalRequiredCoins);
+    if (goalUnlocked && isGoalReached(playerBox, goalBox)) {
+      isWin = true;
+      winMessage.style.display = 'block';
+      setTimeout(() => resetPlayer({ resetCheckpoint: true }), 2000);
+    }
   }
 
   if (isDead || isWin) {

@@ -41,6 +41,7 @@ export function initCaveLevel() {
     coinLayout: [],
     bubbleColumns: [],
     fish: [],
+    treasureChests: [],
     waterVolumes: [],
     eelBoss: null,
     goal: null,
@@ -56,9 +57,10 @@ export function initCaveLevel() {
       waterLevel: 180,
       waterVolumes: [],
       showWaterSurface: false,
-      playerStart: { x: 120, y: 90, z: 0 },
+      playerStart: { x: 120, y: 110, z: 0 },
       startCheckpointId: null,
       goalRequiredCoins: 25,
+      goalType: 'treasure',
     },
     theme: {
       skyTopColor: 0x0c2f4a,
@@ -359,10 +361,6 @@ export function initCaveLevel() {
     wreck.rotation.y = 0.3;
     add(wreck);
 
-    const chest = createTreasureChest();
-    chest.position.set(2060, -5, 120);
-    add(chest);
-
     const coral = createCoral(CONFIG.coralColors[1]);
     coral.position.set(1900, -10, 200);
     add(coral);
@@ -408,9 +406,6 @@ export function initCaveLevel() {
       add(stalagmite);
     }
 
-    const chest = createTreasureChest();
-    chest.position.set(1620, 148, -240);
-    add(chest);
   }
 
   function createRockScatter() {
@@ -482,6 +477,23 @@ export function initCaveLevel() {
         add(fish);
         state.fish.push(fish);
       }
+    }
+  }
+
+  function createTreasureChests() {
+    const placements = [
+      { x: 280, y: 5, z: 200 },
+      { x: 860, y: 140, z: -200 },
+      { x: 1480, y: 85, z: 300 },
+      { x: 2060, y: -5, z: 120 },
+      { x: 1620, y: 148, z: -240 },
+    ];
+
+    for (const placement of placements) {
+      const chest = createTreasureChest();
+      chest.position.set(placement.x, placement.y, placement.z);
+      add(chest);
+      state.treasureChests.push(chest);
     }
   }
 
@@ -648,7 +660,7 @@ export function initCaveLevel() {
       {
         min: {
           x: state.settings.worldMinX,
-          y: state.settings.groundTopY,
+          y: state.settings.groundTopY - 40,
           z: state.settings.worldMinZ,
         },
         max: {
@@ -673,12 +685,15 @@ export function initCaveLevel() {
   createRockScatter();
   addCaveSpikes();
   createFishSchools();
+  createTreasureChests();
   createEelArena();
   createHazards();
   createCheckpoints();
   createBubbleColumns();
   generateCoinLayout();
-  createGoal();
+  if (state.settings.goalType !== 'treasure') {
+    createGoal();
+  }
 
   state.updateEnvironment = updateAmbientBubbles;
 

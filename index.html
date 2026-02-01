@@ -67,6 +67,16 @@
         font-size: 12px;
         line-height: 1.4;
       }
+      #goal-status.treasure-complete {
+        color: #ffd27d;
+        display: inline-block;
+        animation: treasure-pulse 0.6s ease-in-out infinite;
+      }
+      @keyframes treasure-pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.08); }
+        100% { transform: scale(1); }
+      }
       #level-panel {
         position: absolute;
         top: 16px;

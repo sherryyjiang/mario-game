@@ -24,14 +24,15 @@ export const CONFIG = {
   playerStartZ: 80,
   
   // Physics
-  moveSpeed: 6,
+  moveSpeed: 4.2,
   gravity: -0.6,
   jumpVelocity: 14,
   landingTolerance: 8,
-  swimMoveSpeed: 4.4,
-  swimUpImpulse: 0.44,
-  swimDownImpulse: 2.4,
-  swimBuoyancy: 0.18,
+  swimMoveSpeed: 3.08,
+  swimUpImpulse: 0.08064,
+  swimDownImpulse: 0.1715,
+  swimBuoyancy: 0.02,
+  swimSinkScale: 0.25,
   swimDrag: 0.9,
   swimMaxSpeed: 6,
   

@@ -15,10 +15,12 @@ import {
   isInWaterVolumes,
   getFallDeathY,
   shouldTriggerFallDeath,
+  isChestReached,
   updateSwimVelocityY,
   updateCheckpoint,
   updateTimedPlatformState,
 } from './logic.js';
+import { CONFIG } from '../config.js';
 
 test('getMoveVector normalizes diagonal movement', () => {
   const move = getMoveVector({ forward: true, right: true }, 10);
@@ -154,15 +156,22 @@ test('applyQuestionBlockHit rewards only once', () => {
   expect(second.reward).toBe(0);
 });
 
-test('updateSwimVelocityY rises on ascend and falls when not ascending', () => {
-  const config = { swimUpImpulse: 2, swimDownImpulse: 1, swimBuoyancy: 0, swimDrag: 1, swimMaxSpeed: 4 };
+test('updateSwimVelocityY rises on ascend, drifts down, and dives faster on descend', () => {
+  const config = {
+    swimUpImpulse: 2,
+    swimDownImpulse: 4,
+    swimBuoyancy: 0,
+    swimDrag: 1,
+    swimMaxSpeed: 10,
+    swimSinkScale: 0.25,
+  };
   const up = updateSwimVelocityY(0, { ascend: true }, config);
-  const fall = updateSwimVelocityY(0, {}, config);
-  const clamped = updateSwimVelocityY(-3, {}, config);
+  const drift = updateSwimVelocityY(0, {}, config);
+  const dive = updateSwimVelocityY(0, { descend: true }, config);
 
   expect(up).toBe(2);
-  expect(fall).toBe(-1);
-  expect(clamped).toBe(-4);
+  expect(drift).toBe(-1);
+  expect(dive).toBe(-4);
 });
 
 test('isInWaterVolumes returns true when inside any volume', () => {
@@ -193,6 +202,16 @@ test('getSwimPose pitches diagonally when moving', () => {
   expect(pose.pitch).toBeLessThan(-0.35);
 });
 
+test('CONFIG swim impulses are slowed for underwater control', () => {
+  expect(CONFIG.swimUpImpulse).toBeCloseTo(0.08064, 5);
+  expect(CONFIG.swimDownImpulse).toBeCloseTo(0.1715, 4);
+});
+
+test('CONFIG move speeds are slowed for navigation', () => {
+  expect(CONFIG.moveSpeed).toBeCloseTo(4.2, 3);
+  expect(CONFIG.swimMoveSpeed).toBeCloseTo(3.08, 3);
+});
+
 test('getFallDeathY prefers explicit override', () => {
   const value = getFallDeathY({ fallDeathY: -500 }, { worldMinY: -200 });
   expect(value).toBe(-500);
@@ -209,4 +228,11 @@ test('shouldTriggerFallDeath uses worldMinY buffer by default', () => {
 
   expect(shouldTriggerFallDeath(-300, settings, config)).toBe(true);
   expect(shouldTriggerFallDeath(-250, settings, config)).toBe(false);
+});
+
+test('isChestReached returns true on overlap', () => {
+  const player = getAabbFromCenter({ x: 0, y: 10, z: 0 }, { width: 10, height: 10, depth: 10 });
+  const chest = getAabbFromCenter({ x: 4, y: 10, z: 0 }, { width: 8, height: 8, depth: 8 });
+
+  expect(isChestReached(player, chest)).toBe(true);
 });

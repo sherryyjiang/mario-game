@@ -138,6 +138,10 @@ export function isGoalReached(playerBox, goalBox) {
   return isAabbOverlap(playerBox, goalBox);
 }
 
+export function isChestReached(playerBox, chestBox) {
+  return isAabbOverlap(playerBox, chestBox);
+}
+
 export function isGoalUnlocked(score, requiredCoins = 0) {
   return score >= requiredCoins;
 }
@@ -166,12 +170,15 @@ export function updateSwimVelocityY(velocityY, input, config) {
   const swimBuoyancy = config?.swimBuoyancy ?? 0;
   const swimDrag = config?.swimDrag ?? 1;
   const swimMaxSpeed = config?.swimMaxSpeed ?? Infinity;
+  const swimSinkScale = config?.swimSinkScale ?? 0.25;
 
   let next = velocityY + swimBuoyancy;
   if (input?.ascend) {
     next += swimUpImpulse;
-  } else {
+  } else if (input?.descend) {
     next -= swimDownImpulse;
+  } else {
+    next -= swimDownImpulse * swimSinkScale;
   }
   next *= swimDrag;
 

@@ -185,7 +185,7 @@ export function createEelBoss({
   eel.userData.segmentSpacing = segmentSpacing;
   eel.userData.waveAmplitude = radius * 0.6;
   eel.userData.swimAmplitude = radius * 1.2;
-  eel.userData.chaseSpeed = 70;
+  eel.userData.chaseSpeed = 80;
   eel.userData.wanderAmplitude = radius * 1.4;
   eel.userData.boundsPadding = radius * 2;
   eel.size = { width: length, height: radius * 2.4, depth: radius * 2.4 };
