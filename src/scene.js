@@ -82,9 +82,4 @@ effectPass.renderToScreen = true;
 composer.addPass(effectPass);
 
 // Update post-processing size
-const pixelRatio = renderer.getPixelRatio();
 composer.setSize(CONFIG.viewWidth, CONFIG.viewHeight);
-fxaaEffect.resolution.set(
-  1 / (CONFIG.viewWidth * pixelRatio),
-  1 / (CONFIG.viewHeight * pixelRatio)
-);
