@@ -1,267 +1,293 @@
-# PRD: Big House in the Sky - 3D Platformer
+# PRD: Visual Overhaul & Third-Person Chase Camera
 
 ## Overview
 
-Transform the existing 3D platformer prototype into a **floating castle in the sky** experience inspired by Super Mario 64's iconic "The Big House in the Sky" level. The entire game takes place in a magical sky setting with clouds, rainbow paths, and a grand floating castle as the centerpiece.
+Transform the existing Three.js platformer into a polished Mario-style 3D game with professional-quality visuals and a proper third-person chase camera system. The goal is to achieve a feel similar to Super Mario 3D World, Mario Odyssey, or Crash Bandicoot.
 
-**Reference**: https://www.ign.com/wikis/super-mario-64/The_Big_House_in_the_Sky
-
-## Current State (Completed)
-- ✅ Basic 3D platformer with Three.js + Vite
-- ✅ Player movement (WASD/arrows) with gravity and jumping
-- ✅ Ground segments, static/moving/timed platforms
-- ✅ Coins, hazards, jump pads, checkpoints, goal flag
-- ✅ Death/respawn loop, score tracking
-- ✅ Third-person camera follow
-
-## Design Vision
-
-### Theme: Castle in the Sky
-A magical, ethereal world where everything floats among the clouds. The player navigates through cloud platforms, crosses rainbow bridges, climbs around a magnificent floating castle, and reaches the rooftop goal.
-
-### Visual Inspiration (from SM64 Big House in the Sky)
-- Rainbow-colored paths that wind through the sky
-- A large house/castle structure floating in the clouds
-- Spinning platforms and moving carpets/platforms
-- Clear/transparent blocks
-- Bright, cheerful sky atmosphere
-- Sense of height and wonder
-
-### Color Palette
-| Element | Colors |
-|---------|--------|
-| Sky | #87CEEB → #4A90D9 (gradient) |
-| Clouds | #FFFFFF, #F0F0F0 |
-| Rainbow | Full spectrum gradient |
-| Castle Stone | #C0C0C0, #A0A0A0, #808080 |
-| Gold/Magic | #FFD700, #FFA500 |
-| Accents | #DDA0DD (lavender), #FFB6C1 (pink) |
+## Current State
+- ✅ 3D platformer with Three.js + Vite
+- ✅ Expanded world with Big House in the Sky theme
+- ✅ Player movement, gravity, jumping
+- ✅ Platforms, coins, hazards, checkpoints, goal
+- ❌ Camera is static/awkward, doesn't follow properly
+- ❌ Flat visuals with solid color materials
+- ❌ Enemies are brown boxes
+- ❌ No decorative scenery elements
 
 ## Goals
 
 ### Primary Goals
-1. **10x World Expansion**: Grow from 800 width to ~4000 width
-2. **Unified Sky Theme**: All content fits the floating castle aesthetic
-3. **Visual Upgrade**: Replace colored boxes with themed materials/textures
-4. **Centerpiece Castle**: A large, impressive floating structure
+1. **Third-Person Chase Camera**: Proper camera that orbits the player with camera-relative controls
+2. **Visual Overhaul**: Shadows, post-processing, better lighting
+3. **Goomba-Style Enemies**: Cute primitive-based characters instead of boxes
+4. **Mario Scenery**: Trees, pipes, question blocks, bushes, flowers
 
-### Secondary Goals
-- Parallax cloud backgrounds for depth
-- Spinning platform mechanics
-- Rainbow/gradient visual effects
-- Maintain 60 FPS performance
+### Target Feel
+- Responsive but not twitchy camera
+- Movement that feels natural regardless of camera angle
+- Cheerful, colorful Mario-like aesthetic
+- Polished with shadows and subtle effects
 
 ## Non-Goals
-- Multiple biome/zone themes (just sky castle for now)
-- Complex character animation
+- External 3D models (use only Three.js primitives)
+- Complex animation rigs
 - Sound effects or music
-- Mobile controls
+- Mobile touch controls
 
-## Target Experience
-- Player feels like they're high in the sky among the clouds
-- The floating castle creates a sense of wonder and destination
-- Platforming feels varied (clouds, rainbows, stone, glass)
-- Clear visual progression toward the castle and its rooftop
+---
 
-## User Stories
-- As a player, I explore a magical sky world with varied platforms
-- As a player, I can see a grand floating castle as my destination
-- As a player, I encounter cloud, rainbow, and stone platforms
-- As a player, I navigate spinning platforms that require timing
-- As a player, I climb around and through the castle to reach the rooftop goal
+## Part 1: Camera System (Priority)
 
-## Functional Requirements
+### Camera Behavior
+| Feature | Specification |
+|---------|--------------|
+| Type | Third-person chase camera |
+| Distance | ~150 units behind player |
+| Height | ~80 units above player |
+| Following | Smooth lerp (damping ~0.1) |
+| User Control | Mouse drag to orbit around player |
+| Collision | Stay above ground minimum height |
 
-### 1. World Structure
+### Camera-Relative Movement (Critical)
+The most important change: movement must be relative to camera orientation.
 
-**Total Playable Area**: x: 0–4000, z: -400–400
+| Input | Movement Direction |
+|-------|-------------------|
+| W / Up | Move AWAY from camera (into screen) |
+| S / Down | Move TOWARD camera |
+| A / Left | Move to camera's LEFT |
+| D / Right | Move to camera's RIGHT |
 
-**Section 1: Cloud Approach (x: 0–1000)**
-- White cloud platforms, easy jumps
-- Introduction to mechanics
-- First coins and basic hazards
-- View of the distant castle
+**Technical Approach**:
+1. Get camera's forward vector (ignore Y component)
+2. Get camera's right vector (cross product with world up)
+3. Transform input based on these vectors
+4. Apply movement in world space
 
-**Section 2: Rainbow Bridge (x: 1000–2000)**  
-- Rainbow-colored platform paths
-- Moving platforms gliding on rainbow trails
-- Spinning platforms
-- Increased difficulty
+### Character Rotation
+- Character rotates to face movement direction
+- Use slerp for smooth rotation (not instant snap)
+- Rotation speed ~10-15 for responsive feel
 
-**Section 3: Castle Exterior (x: 2000–3200)**
-- Stone/brick platforms around castle walls
-- Vertical climbing sections
-- Patrolling hazards
-- Windows and architectural details
+---
 
-**Section 4: Castle Rooftop (x: 3200–4000)**
-- Final approach to the goal
-- Platforms on/inside the castle
-- Rooftop with goal flag on highest point
+## Part 2: Visual Overhaul
 
-### 2. Platform Types
+### Lighting Setup
+| Light Type | Purpose | Settings |
+|------------|---------|----------|
+| DirectionalLight | Sun, shadows | Position (200, 400, 200), intensity 1.0 |
+| HemisphereLight | Sky/ground ambient | Sky #87CEEB, Ground #8B4513, intensity 0.4 |
+| AmbientLight | Fill | White, intensity 0.3 |
 
-| Platform Type | Visual | Behavior |
-|--------------|--------|----------|
-| Cloud | White, fluffy material | Static, solid |
-| Rainbow | Gradient colors | Static or moving |
-| Stone | Gray castle texture | Static, solid |
-| Glass | Semi-transparent blue | Static, see-through |
-| Spinning | Any material | Rotates on Y-axis |
-| Moving | Any material | Moves along path |
-| Timed | Cloud (fading) | Disappears after standing |
+### Shadow Configuration
+```
+renderer.shadowMap.enabled = true
+renderer.shadowMap.type = PCFSoftShadowMap
+shadow.mapSize = 2048x2048
+```
 
-### 3. The Big House/Castle
+### Post-Processing Pipeline
+Using `postprocessing` npm package:
+1. **BloomEffect** - Glow on coins and magical elements
+2. **FXAAEffect** - Anti-aliasing
+3. **VignetteEffect** - Subtle darkening at edges (optional)
 
-Create a large decorative structure:
-- Position: Centered around x: 2800
-- Scale: Large enough to be impressive (400+ units wide)
-- Features: Towers, windows, arched doorways
-- Player platforms weave around the exterior
-- Some platforms pass "through" openings
+### Atmosphere
+- **Fog**: Match sky color, fade distant objects
+- **Materials**: MeshStandardMaterial with appropriate roughness/metalness
 
-**Implementation Options** (in order of simplicity):
-1. Grouped box geometries forming castle shape
-2. Simple extruded shapes for towers/walls
-3. Imported low-poly model (if free asset found)
+---
 
-### 4. Background & Atmosphere
+## Part 3: Goomba-Style Enemies
 
-**Sky Background**:
-- Gradient from light blue (top) to deeper blue (horizon)
-- Use `scene.background` with gradient texture or shader
+Replace brown box enemies with cute characters built from Three.js primitives.
 
-**Parallax Clouds**:
-- 2-3 layers of cloud planes at different depths
-- Farther clouds move slower as camera moves
-- Non-collidable, purely decorative
+### Anatomy
+| Part | Geometry | Color |
+|------|----------|-------|
+| Body | Squashed sphere (scale y: 0.7) | Brown #8B4513 |
+| Underbelly | Half sphere | Tan #D2B48C |
+| Eyes | Small spheres | White |
+| Pupils | Smaller spheres | Black |
+| Eyebrows | Thin boxes, angled | Black |
+| Feet | Flat spheres | Black |
 
-**Ambient Lighting**:
-- Bright, warm ambient light
-- Soft directional light from above
+### Animations
+- **Idle**: Subtle up/down bounce
+- **Walking**: Feet alternate up/down
+- **Movement**: Squash-and-stretch on body
 
-### 5. Content Requirements
+### Personality
+- Should look grumpy but cute, not scary
+- Angry eyebrows give personality
+- Bounce adds life and charm
 
-| Content | Minimum Count |
-|---------|---------------|
-| Platforms | 32+ |
-| Moving Platforms | 4+ |
-| Spinning Platforms | 3+ |
-| Coins | 50+ |
-| Checkpoints | 8-10 |
-| Hazards | 4+ |
+---
 
-## Technical Stack
-- **Three.js** for 3D rendering
-- **Vite** for dev server/bundling
-- **Vanilla JavaScript** for game logic
-- **PNG textures** (power-of-2 dimensions)
+## Part 4: Mario-Style Scenery
 
-## Architecture Notes
+### Trees (3 variations)
+1. **Round**: Brown cylinder trunk + stacked green spheres for puffy canopy
+2. **Tall**: Brown trunk + green cone for pine-like shape
+3. **Palm**: Tall thin trunk + palm fronds (optional)
 
-### Spinning Platform Implementation
+### Pipes
+- Classic green Mario pipes
+- Cylinder body + wider rim at top
+- Dark opening
+- Glossy material (metalness 0.3)
+- Varying heights
+
+### Question Blocks
+- Yellow/gold cube
+- White "?" on front (simplified)
+- Floating with subtle bounce animation
+- Can be hit from below (optional interaction)
+
+### Bushes & Flowers
+- **Bushes**: Cluster of green spheres
+- **Flowers**: Stem + center + ring of petals (spheres)
+- Various colors for variety
+
+### Background Elements
+- Distant hills/mountains (large half-spheres)
+- Affected by fog for depth
+- Non-interactive, purely decorative
+
+### Optional Enhancements
+- Sparkle particles near coins
+- Floating musical notes
+- Butterflies or birds as ambient particles
+- Rainbows between platforms
+
+---
+
+## Technical Architecture
+
+### Camera System
 ```javascript
-class SpinningPlatform {
-  constructor(mesh, rotationSpeed = 0.5) {
-    this.mesh = mesh;
-    this.rotationSpeed = rotationSpeed;
+class ChaseCamera {
+  constructor(camera, target, options) {
+    this.camera = camera;
+    this.target = target;
+    this.distance = options.distance || 150;
+    this.height = options.height || 80;
+    this.theta = 0; // Horizontal angle (mouse controlled)
+    this.damping = options.damping || 0.1;
   }
   
   update(delta) {
-    this.mesh.rotation.y += this.rotationSpeed * delta;
+    // Calculate desired position using spherical coordinates
+    // Lerp camera position toward desired
+    // Look at target
+  }
+  
+  handleMouseDrag(deltaX) {
+    this.theta += deltaX * 0.01;
   }
 }
 ```
 
-### Parallax Background
+### Post-Processing Setup
 ```javascript
-function updateParallax(cameraX) {
-  cloudLayerFar.position.x = cameraX * 0.1;
-  cloudLayerMid.position.x = cameraX * 0.3;
-  cloudLayerNear.position.x = cameraX * 0.6;
+import { 
+  EffectComposer, 
+  RenderPass, 
+  BloomEffect, 
+  FXAAEffect, 
+  EffectPass 
+} from 'postprocessing';
+
+function setupPostProcessing(renderer, scene, camera) {
+  const composer = new EffectComposer(renderer);
+  composer.addPass(new RenderPass(scene, camera));
+  composer.addPass(new EffectPass(camera, 
+    new BloomEffect({ intensity: 0.5 }),
+    new FXAAEffect()
+  ));
+  return composer;
 }
 ```
 
-### Castle Structure (Box Composition)
+### Enemy Factory
 ```javascript
-function createCastle() {
-  const castle = new THREE.Group();
-  
-  // Main building
-  const mainBody = createBox({ width: 300, height: 200, depth: 200, color: 0xa0a0a0 });
-  mainBody.position.set(0, 100, 0);
-  castle.add(mainBody);
-  
-  // Towers
-  const tower1 = createBox({ width: 60, height: 280, depth: 60, color: 0x909090 });
-  tower1.position.set(-120, 140, -70);
-  castle.add(tower1);
-  
-  // ... more elements
-  return castle;
+function createGoomba(position) {
+  const goomba = new THREE.Group();
+  // ... build from primitives
+  goomba.position.copy(position);
+  goomba.userData = {
+    type: 'goomba',
+    baseY: position.y,
+    isMoving: false,
+  };
+  return goomba;
 }
 ```
+
+---
 
 ## Performance Constraints
+
 - Target 60 FPS on modern laptop
-- Limit total mesh count (use instancing if needed)
-- Keep texture sizes reasonable (512x512 max)
-- Profile if adding many decorative elements
+- Shadow map size: 2048 (reduce if needed)
+- Bloom iterations: 5-7 (default, reduce if needed)
+- Limit total scenery objects (instancing if needed)
+- Profile post-processing impact
 
-## Asset Requirements
-
-**Must Find/Create**:
-1. Cloud texture or material style
-2. Rainbow gradient (can be programmatic)
-3. Stone/castle block texture
-4. Sky gradient background
-
-**Nice to Have**:
-1. Fluffy cloud sprite for decoration
-2. Sparkle/glow effect texture
-3. Character texture for player
+---
 
 ## Acceptance Criteria
 
 ### Must Have
-- [ ] World expanded to 4000 width
-- [ ] Sky gradient background (not flat color)
-- [ ] Cloud-styled platforms in Section 1
-- [ ] Rainbow-styled platforms in Section 2
-- [ ] Stone-styled platforms in Section 3-4
-- [ ] Large castle structure visible as centerpiece
-- [ ] 50+ coins placed throughout
-- [ ] 8+ checkpoints placed throughout
-- [ ] Spinning platforms functional
+- [ ] Camera orbits around player
+- [ ] Camera-relative movement (W = into screen)
+- [ ] Character rotation toward movement
+- [ ] Soft shadows on all objects
+- [ ] Post-processing: bloom + anti-aliasing
+- [ ] Goomba enemies with body, eyes, feet
+- [ ] At least 5 trees placed in world
+- [ ] At least 3 pipes placed in world
 
 ### Should Have
-- [ ] Parallax cloud background layers
-- [ ] Glass/transparent platforms
-- [ ] Player visual upgrade
-- [ ] Decorative cloud elements
+- [ ] Mouse drag to control camera angle
+- [ ] Goomba idle bounce animation
+- [ ] Goomba walking foot animation
+- [ ] Question blocks with bounce animation
+- [ ] Bushes and flowers as decoration
+- [ ] Background hills
 
 ### Nice to Have
-- [ ] Sparkle effects near magical areas
-- [ ] Castle windows and details
-- [ ] Smooth zone color transitions
+- [ ] Sparkle particles near coins
+- [ ] Squash-and-stretch on Goombas
+- [ ] Vignette post-processing effect
+- [ ] Camera collision with geometry
+
+---
 
 ## Milestones
 
-1. **Asset Prep**: Source cloud, rainbow, stone textures/materials
-2. **World Expansion**: Extend bounds, create Section 1 with clouds
-3. **Rainbow Section**: Build Section 2 with rainbow paths
-4. **Castle Build**: Create castle structure and Sections 3-4
-5. **Polish**: Add parallax, decorative elements, spinning platforms
-6. **Testing**: Full playthrough, performance check
+1. **Camera Foundation**: Implement chase camera with smooth follow
+2. **Camera-Relative Movement**: W moves away from camera, character rotates
+3. **Lighting & Shadows**: Set up sun, hemisphere, shadows
+4. **Post-Processing**: Add bloom and anti-aliasing
+5. **Goomba Creation**: Build enemy model from primitives
+6. **Goomba Animation**: Add bounce and walking
+7. **Scenery**: Add trees, pipes, blocks, bushes
+8. **Polish**: Background elements, fine-tuning
+
+---
 
 ## Risks
-- Castle geometry may be complex to build from boxes
-- Spinning platforms need careful collision handling
-- Parallax may need performance tuning
-- Finding perfect sky-themed assets may require creativity
+
+- Camera-relative movement math can be tricky
+- Post-processing may impact performance
+- Goomba primitives may not look appealing (iterate on design)
+- Too many scenery objects may slow rendering
 
 ## Decisions
-1. Single cohesive sky castle theme (no multiple biomes)
-2. Build castle from box primitives (no external 3D model import needed)
-3. Prioritize world expansion over animation polish
-4. Rainbow effects can be programmatic (vertex colors or multiple meshes)
+
+1. Use `postprocessing` npm package (better than built-in EffectComposer)
+2. Build all characters from primitives (no external models)
+3. Camera orbits player horizontally only (not full spherical)
+4. Start with camera system before any visual changes

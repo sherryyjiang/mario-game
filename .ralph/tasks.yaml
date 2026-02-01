@@ -3,56 +3,140 @@
 # DO NOT EDIT - regenerated on task file change
 
 source_file: RALPH_TASK.md
-source_mtime: 1769927839
-generated_at: 2026-02-01T06:38:01Z
+source_mtime: 1769930228
+generated_at: 2026-02-01T07:18:16Z
 
 tasks:
-  - id: "line_22"
-    line_number: 22
+  - id: "line_114"
+    line_number: 114
     status: completed
     parallel_group: 999999
-    description: `vite` dev server runs and renders ground segments, platform, player.
+    description: Download or source at least 5 sky/castle themed assets
     indent_level: 0
     raw_marker: 1.
-  - id: "line_23"
-    line_number: 23
+  - id: "line_115"
+    line_number: 115
     status: completed
     parallel_group: 999999
-    description: Arrow keys move player left/right at 5 units per frame.
+    description: Create `public/assets/` folder and organize images
     indent_level: 0
     raw_marker: 2.
-  - id: "line_24"
-    line_number: 24
+  - id: "line_116"
+    line_number: 116
     status: completed
     parallel_group: 999999
-    description: Gravity (-0.5 per frame) and jump (velocity 12) work.
+    description: Cloud platforms use white/fluffy texture or material
     indent_level: 0
     raw_marker: 3.
-  - id: "line_25"
-    line_number: 25
+  - id: "line_117"
+    line_number: 117
     status: completed
     parallel_group: 999999
-    description: Player lands only on ground segments (gap is pass-through).
+    description: Rainbow platforms use gradient/colorful material
     indent_level: 0
     raw_marker: 4.
-  - id: "line_26"
-    line_number: 26
+  - id: "line_118"
+    line_number: 118
     status: completed
     parallel_group: 999999
-    description: One-way platform works from above while falling.
+    description: Castle section uses stone/brick texture
     indent_level: 0
     raw_marker: 5.
-  - id: "line_27"
-    line_number: 27
+  - id: "line_121"
+    line_number: 121
     status: completed
     parallel_group: 999999
-    description: Falling below y=0 shows “You died!” and resets after 1s.
+    description: Expand world bounds to x: 0–4000, z: -400–400
     indent_level: 0
     raw_marker: 6.
-  - id: "line_28"
-    line_number: 28
+  - id: "line_122"
+    line_number: 122
     status: completed
     parallel_group: 999999
-    description: Player clamped to x range 15–785.
+    description: Camera follows player smoothly across larger world
     indent_level: 0
     raw_marker: 7.
+  - id: "line_123"
+    line_number: 123
+    status: completed
+    parallel_group: 999999
+    description: Section 1 (Clouds): 8+ platforms, introductory difficulty
+    indent_level: 0
+    raw_marker: 8.
+  - id: "line_124"
+    line_number: 124
+    status: completed
+    parallel_group: 999999
+    description: Section 2 (Rainbow): 8+ platforms, 2+ moving platforms
+    indent_level: 0
+    raw_marker: 9.
+  - id: "line_125"
+    line_number: 125
+    status: completed
+    parallel_group: 999999
+    description: Section 3 (Castle Exterior): 10+ platforms, vertical climbing
+    indent_level: 0
+    raw_marker: 10.
+  - id: "line_126"
+    line_number: 126
+    status: completed
+    parallel_group: 999999
+    description: Section 4 (Castle/Rooftop): 6+ platforms, final goal
+    indent_level: 0
+    raw_marker: 11.
+  - id: "line_127"
+    line_number: 127
+    status: completed
+    parallel_group: 999999
+    description: Add 8-10 checkpoints spread across all sections
+    indent_level: 0
+    raw_marker: 12.
+  - id: "line_128"
+    line_number: 128
+    status: completed
+    parallel_group: 999999
+    description: Add 50+ coins total across all sections
+    indent_level: 0
+    raw_marker: 13.
+  - id: "line_129"
+    line_number: 129
+    status: completed
+    parallel_group: 999999
+    description: Add 4+ hazards appropriate to theme
+    indent_level: 0
+    raw_marker: 14.
+  - id: "line_132"
+    line_number: 132
+    status: completed
+    parallel_group: 999999
+    description: Sky background is gradient blue (not flat color)
+    indent_level: 0
+    raw_marker: 15.
+  - id: "line_133"
+    line_number: 133
+    status: completed
+    parallel_group: 999999
+    description: At least one parallax cloud layer in background
+    indent_level: 0
+    raw_marker: 16.
+  - id: "line_134"
+    line_number: 134
+    status: completed
+    parallel_group: 999999
+    description: The Big House/Castle structure visible as centerpiece
+    indent_level: 0
+    raw_marker: 17.
+  - id: "line_135"
+    line_number: 135
+    status: completed
+    parallel_group: 999999
+    description: Spinning platforms implemented and functional
+    indent_level: 0
+    raw_marker: 18.
+  - id: "line_136"
+    line_number: 136
+    status: completed
+    parallel_group: 999999
+    description: Player visual upgraded from plain red box
+    indent_level: 0
+    raw_marker: 19.
