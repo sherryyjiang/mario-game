@@ -12,7 +12,7 @@ import {
   createCheckpoint 
 } from './platforms.js';
 import { createGoomba } from './enemies.js';
-import { createTree, createCastle, createBackgroundCloud } from './scenery.js';
+import { createTree, createCastle, createBackgroundCloud, createPipe } from './scenery.js';
 
 // Level data
 export const platforms = [];
@@ -364,6 +364,20 @@ function addDecorativeTrees() {
   }
 }
 
+function addDecorativePipes() {
+  const pipePlacements = [
+    { x: 320, y: CONFIG.groundTopY, z: 140, height: 70 },
+    { x: 1180, y: 210, z: -140, height: 60 },
+    { x: 2500, y: 470, z: 140, height: 80 },
+  ];
+
+  for (const placement of pipePlacements) {
+    const pipe = createPipe(placement.height);
+    pipe.position.set(placement.x, placement.y, placement.z);
+    scene.add(pipe);
+  }
+}
+
 // Goal
 export let goal;
 
@@ -394,6 +408,7 @@ export function initLevel() {
   createCheckpoints();
   createBackgroundClouds();
   addDecorativeTrees();
+  addDecorativePipes();
   createGoal();
 }
 

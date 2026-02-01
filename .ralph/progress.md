@@ -24,7 +24,8 @@ The codebase has been split into modules for easier navigation:
 - [x] Visual overhaul implemented (fog, soft shadows, lighting, bloom + FXAA)
 - [x] Goomba enemies implemented (model + idle + walk animation)
 - [x] Trees placed in level
-- [ ] Remaining: pipes, question blocks, bushes/flowers, background hills
+- [x] Pipes placed in level
+- [ ] Remaining: question blocks, bushes/flowers, background hills
 
 ### 2026-02-01 16:00:37
 **Session 1 started** (model: gpt-5.2-high)
