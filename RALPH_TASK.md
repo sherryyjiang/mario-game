@@ -111,29 +111,29 @@ Create a large decorative castle/house mesh visible in the scene:
 ## Success Criteria
 
 ### Asset Integration
-1. [ ] Download or source at least 5 sky/castle themed assets
-2. [ ] Create `public/assets/` folder and organize images
-3. [ ] Cloud platforms use white/fluffy texture or material
-4. [ ] Rainbow platforms use gradient/colorful material
-5. [ ] Castle section uses stone/brick texture
+1. [x] Download or source at least 5 sky/castle themed assets
+2. [x] Create `public/assets/` folder and organize images
+3. [x] Cloud platforms use white/fluffy texture or material
+4. [x] Rainbow platforms use gradient/colorful material
+5. [x] Castle section uses stone/brick texture
 
 ### World Expansion
-6. [ ] Expand world bounds to x: 0–4000, z: -400–400
-7. [ ] Camera follows player smoothly across larger world
-8. [ ] Section 1 (Clouds): 8+ platforms, introductory difficulty
-9. [ ] Section 2 (Rainbow): 8+ platforms, 2+ moving platforms
-10. [ ] Section 3 (Castle Exterior): 10+ platforms, vertical climbing
-11. [ ] Section 4 (Castle/Rooftop): 6+ platforms, final goal
-12. [ ] Add 8-10 checkpoints spread across all sections
-13. [ ] Add 50+ coins total across all sections
-14. [ ] Add 4+ hazards appropriate to theme
+6. [x] Expand world bounds to x: 0–4000, z: -400–400
+7. [x] Camera follows player smoothly across larger world
+8. [x] Section 1 (Clouds): 8+ platforms, introductory difficulty
+9. [x] Section 2 (Rainbow): 8+ platforms, 2+ moving platforms
+10. [x] Section 3 (Castle Exterior): 10+ platforms, vertical climbing
+11. [x] Section 4 (Castle/Rooftop): 6+ platforms, final goal
+12. [x] Add 8-10 checkpoints spread across all sections
+13. [x] Add 50+ coins total across all sections
+14. [x] Add 4+ hazards appropriate to theme
 
 ### Visual Polish
-15. [ ] Sky background is gradient blue (not flat color)
-16. [ ] At least one parallax cloud layer in background
-17. [ ] The Big House/Castle structure visible as centerpiece
-18. [ ] Spinning platforms implemented and functional
-19. [ ] Player visual upgraded from plain red box
+15. [x] Sky background is gradient blue (not flat color)
+16. [x] At least one parallax cloud layer in background
+17. [x] The Big House/Castle structure visible as centerpiece
+18. [x] Spinning platforms implemented and functional
+19. [x] Player visual upgraded from plain red box
 
 ## Technical Notes
 

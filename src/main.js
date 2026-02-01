@@ -11,119 +11,103 @@ import {
   updateTimedPlatformState,
 } from './game/logic.js';
 
-// Configuration
+// Configuration - Sky Castle Theme
 const CONFIG = {
-  viewWidth: 800,
-  viewHeight: 400,
-  viewCenterX: 400,
-  viewCenterY: 200,
-  worldDepth: 500,
+  // View settings
+  viewWidth: 1200,
+  viewHeight: 600,
+  
+  // World bounds - 10x expanded
+  worldMinX: 0,
+  worldMaxX: 4000,
+  worldMinZ: -400,
+  worldMaxZ: 400,
+  
+  // Ground settings
   groundTopY: 50,
-  groundDepth: 420,
+  groundDepth: 800,
+  
+  // Player settings
   playerWidth: 30,
   playerHeight: 40,
   playerDepth: 30,
   playerStartX: 80,
   playerStartZ: 80,
-  gapStartX: 350,
-  gapEndX: 470,
-  platformCenterX: 330,
-  platformZ: -40,
-  platformY: 230,
-  platformWidth: 120,
-  platformHeight: 15,
-  platformDepth: 90,
-  timedPlatformCenterX: 420,
-  timedPlatformCenterZ: 150,
-  timedPlatformY: 150,
-  timedPlatformWidth: 90,
-  timedPlatformHeight: 12,
-  timedPlatformDepth: 90,
-  timedPlatformDropDelay: 0.6,
-  timedPlatformRespawnDelay: 2.5,
-  movingPlatformCenterX: 560,
-  movingPlatformZ: 120,
-  movingPlatformY: 180,
-  movingPlatformWidth: 110,
-  movingPlatformHeight: 15,
-  movingPlatformDepth: 90,
-  movingPlatformAmplitude: 120,
-  movingPlatformSpeed: 1.2,
-  hazardCenterX: 220,
-  hazardCenterZ: -110,
-  hazardY: 60,
-  hazardWidth: 90,
-  hazardHeight: 20,
-  hazardDepth: 90,
-  patrolHazardCenterX: 520,
-  patrolHazardCenterZ: -150,
-  patrolHazardY: 60,
-  patrolHazardWidth: 70,
-  patrolHazardHeight: 25,
-  patrolHazardDepth: 70,
-  patrolHazardDistance: 90,
-  patrolHazardSpeed: 1.4,
-  jumpPadCenterX: 650,
-  jumpPadCenterZ: -120,
-  jumpPadY: 56,
-  jumpPadWidth: 80,
-  jumpPadHeight: 12,
-  jumpPadDepth: 80,
-  jumpPadBoost: 18,
+  
+  // Physics
+  moveSpeed: 6,
+  gravity: -0.6,
+  jumpVelocity: 14,
+  landingTolerance: 8,
+  
+  // Camera
+  cameraOffsetX: 0,
+  cameraOffsetY: 200,
+  cameraOffsetZ: 350,
+  cameraTargetHeight: 70,
+  cameraLerp: 0.08,
+  
+  // Colors - Sky Castle Theme
+  skyTopColor: 0x4a90d9,
+  skyBottomColor: 0x87ceeb,
+  cloudColor: 0xffffff,
+  rainbowColors: [0xff0000, 0xff7f00, 0xffff00, 0x00ff00, 0x0000ff, 0x8b00ff],
+  stoneColor: 0xa0a0a0,
+  stoneDarkColor: 0x808080,
+  goldColor: 0xffd700,
+  glassColor: 0xadd8e6,
+  playerBodyColor: 0x3498db,
+  playerCapColor: 0xe74c3c,
+  hazardColor: 0xff6a00,
+  checkpointColor: 0xffffff,
+  checkpointActiveColor: 0x7fff00,
+  checkpointFlagColor: 0xffd1dc,
+  goalColor: 0xff69b4,
+  coinColor: 0xffd700,
+  
+  // Checkpoint/goal settings
   checkpointPoleWidth: 12,
   checkpointPoleHeight: 70,
   checkpointPoleDepth: 12,
   checkpointFlagWidth: 28,
   checkpointFlagHeight: 18,
   checkpointFlagDepth: 8,
-  checkpointStartX: 100,
-  checkpointStartZ: 80,
-  checkpointMidX: 520,
-  checkpointMidZ: -40,
-  goalCenterX: 750,
-  goalCenterZ: 30,
-  goalY: 120,
   goalWidth: 30,
-  goalHeight: 90,
+  goalHeight: 120,
   goalDepth: 30,
-  moveSpeed: 5,
-  gravity: -0.5,
-  jumpVelocity: 12,
-  landingTolerance: 6,
-  minX: 15,
-  maxX: 785,
-  minZ: -200,
-  maxZ: 200,
-  cameraOffsetX: 0,
-  cameraOffsetY: 180,
-  cameraOffsetZ: 280,
-  cameraTargetHeight: 60,
-  cameraLerp: 0.1,
-  backgroundColor: 0x87ceeb,
-  groundColor: 0x8b4513,
-  playerColor: 0xff0000,
-  platformColor: 0x228b22,
-  timedPlatformColor: 0x3cb371,
-  movingPlatformColor: 0x2e8b57,
-  hazardColor: 0xff6a00,
-  patrolHazardColor: 0xff3b3b,
-  jumpPadColor: 0x1e90ff,
-  checkpointColor: 0xffffff,
-  checkpointActiveColor: 0x7fff00,
-  checkpointFlagColor: 0xffd1dc,
-  goalColor: 0xff69b4,
-  coinColor: 0xffd700,
+  
+  // Jump pad
+  jumpPadBoost: 20,
 };
 
 // Scene setup
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(CONFIG.backgroundColor);
+
+// Create gradient sky background
+function createSkyGradient() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 2;
+  canvas.height = 512;
+  const ctx = canvas.getContext('2d');
+  const gradient = ctx.createLinearGradient(0, 0, 0, 512);
+  gradient.addColorStop(0, '#4a90d9');
+  gradient.addColorStop(0.5, '#87ceeb');
+  gradient.addColorStop(1, '#b0e0e6');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, 2, 512);
+  
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.magFilter = THREE.LinearFilter;
+  return texture;
+}
+
+const skyTexture = createSkyGradient();
+scene.background = skyTexture;
 
 // Camera - third person follow
 const aspect = CONFIG.viewWidth / CONFIG.viewHeight;
-const camera = new THREE.PerspectiveCamera(60, aspect, 0.1, 2500);
-camera.position.set(CONFIG.viewCenterX, CONFIG.viewCenterY + 180, CONFIG.cameraOffsetZ);
-camera.lookAt(CONFIG.viewCenterX, CONFIG.viewCenterY, 0);
+const camera = new THREE.PerspectiveCamera(60, aspect, 0.1, 5000);
+camera.position.set(200, 300, 400);
 
 // Renderer
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -132,37 +116,144 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 document.body.appendChild(renderer.domElement);
 
 // Lighting
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
 scene.add(ambientLight);
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, 0.9);
-directionalLight.position.set(300, 500, 400);
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
+directionalLight.position.set(500, 800, 400);
 scene.add(directionalLight);
 
-// Helpers
-function createBox({ width, height, depth, color }) {
-  return new THREE.Mesh(
+const secondaryLight = new THREE.DirectionalLight(0xffeedd, 0.4);
+secondaryLight.position.set(-300, 400, -200);
+scene.add(secondaryLight);
+
+// === Materials ===
+
+// Cloud material - soft white fluffy appearance
+const cloudMaterial = new THREE.MeshStandardMaterial({
+  color: CONFIG.cloudColor,
+  roughness: 1.0,
+  metalness: 0,
+  flatShading: false,
+});
+
+// Rainbow materials - gradient colors
+const rainbowMaterials = CONFIG.rainbowColors.map(color => 
+  new THREE.MeshStandardMaterial({ color, roughness: 0.3, metalness: 0.1 })
+);
+
+// Stone/castle material
+const stoneMaterial = new THREE.MeshStandardMaterial({
+  color: CONFIG.stoneColor,
+  roughness: 0.8,
+  metalness: 0.1,
+});
+
+const stoneDarkMaterial = new THREE.MeshStandardMaterial({
+  color: CONFIG.stoneDarkColor,
+  roughness: 0.9,
+  metalness: 0.1,
+});
+
+// Glass/transparent material
+const glassMaterial = new THREE.MeshStandardMaterial({
+  color: CONFIG.glassColor,
+  transparent: true,
+  opacity: 0.5,
+  roughness: 0.1,
+  metalness: 0.2,
+});
+
+// Gold material for accents
+const goldMaterial = new THREE.MeshStandardMaterial({
+  color: CONFIG.goldColor,
+  roughness: 0.3,
+  metalness: 0.8,
+});
+
+// === Helpers ===
+
+function createBox({ width, height, depth, material }) {
+  const mesh = new THREE.Mesh(
     new THREE.BoxGeometry(width, height, depth),
-    new THREE.MeshStandardMaterial({ color })
+    material
   );
+  mesh.size = { width, height, depth };
+  return mesh;
+}
+
+function createBoxWithColor({ width, height, depth, color }) {
+  const mat = new THREE.MeshStandardMaterial({ color });
+  return createBox({ width, height, depth, material: mat });
+}
+
+function createCloudPlatform({ width, height, depth }) {
+  const group = new THREE.Group();
+  
+  // Main platform
+  const main = createBox({ width, height, depth, material: cloudMaterial.clone() });
+  group.add(main);
+  
+  // Add fluffy bumps for cloud effect
+  const bumpCount = Math.floor(width / 40);
+  for (let i = 0; i < bumpCount; i++) {
+    const bumpSize = 15 + Math.random() * 15;
+    const bump = new THREE.Mesh(
+      new THREE.SphereGeometry(bumpSize, 8, 6),
+      cloudMaterial
+    );
+    bump.position.set(
+      (i - bumpCount / 2) * 35 + Math.random() * 10,
+      height / 2 - 5,
+      (Math.random() - 0.5) * depth * 0.6
+    );
+    group.add(bump);
+  }
+  
+  group.size = { width, height, depth };
+  return group;
+}
+
+function createRainbowPlatform({ width, height, depth, colorIndex = 0 }) {
+  const material = rainbowMaterials[colorIndex % rainbowMaterials.length];
+  const mesh = createBox({ width, height, depth, material: material.clone() });
+  mesh.material.emissive = new THREE.Color(material.color).multiplyScalar(0.2);
+  return mesh;
+}
+
+function createStonePlatform({ width, height, depth }) {
+  return createBox({ width, height, depth, material: stoneMaterial.clone() });
+}
+
+function createGlassPlatform({ width, height, depth }) {
+  return createBox({ width, height, depth, material: glassMaterial.clone() });
+}
+
+function createSpinningPlatform({ width, height, depth, material }) {
+  const mesh = createBox({ width, height, depth, material: material || goldMaterial.clone() });
+  mesh.isSpinning = true;
+  mesh.spinSpeed = 0.5;
+  return mesh;
 }
 
 function createCheckpoint({ poleColor, flagColor }) {
   const group = new THREE.Group();
+  const poleMat = new THREE.MeshStandardMaterial({ color: poleColor });
   const pole = createBox({
     width: CONFIG.checkpointPoleWidth,
     height: CONFIG.checkpointPoleHeight,
     depth: CONFIG.checkpointPoleDepth,
-    color: poleColor,
+    material: poleMat,
   });
   pole.position.set(0, CONFIG.checkpointPoleHeight / 2, 0);
   group.add(pole);
 
+  const flagMat = new THREE.MeshStandardMaterial({ color: flagColor });
   const flag = createBox({
     width: CONFIG.checkpointFlagWidth,
     height: CONFIG.checkpointFlagHeight,
     depth: CONFIG.checkpointFlagDepth,
-    color: flagColor,
+    material: flagMat,
   });
   flag.position.set(CONFIG.checkpointFlagWidth / 2 + 6, CONFIG.checkpointPoleHeight - 10, 0);
   group.add(flag);
@@ -171,9 +262,20 @@ function createCheckpoint({ poleColor, flagColor }) {
 }
 
 function getBoxAabb(box) {
+  const pos = box.position || { x: 0, y: 0, z: 0 };
+  const size = box.size || { width: 10, height: 10, depth: 10 };
   return getAabbFromCenter(
-    { x: box.position.x, y: box.position.y, z: box.position.z },
-    { width: box.size.width, height: box.size.height, depth: box.size.depth }
+    { x: pos.x, y: pos.y, z: pos.z },
+    { width: size.width, height: size.height, depth: size.depth }
+  );
+}
+
+function getGroupAabb(group) {
+  const pos = group.position;
+  const size = group.size || { width: 100, height: 15, depth: 100 };
+  return getAabbFromCenter(
+    { x: pos.x, y: pos.y, z: pos.z },
+    { width: size.width, height: size.height, depth: size.depth }
   );
 }
 
@@ -181,120 +283,399 @@ function getCoinKey(position) {
   return `${position.x}|${position.y}|${position.z}`;
 }
 
-// Ground segments
-const groundLeft = createBox({
-  width: CONFIG.gapStartX,
-  height: CONFIG.groundTopY,
-  depth: CONFIG.groundDepth,
-  color: CONFIG.groundColor,
-});
-groundLeft.position.set(CONFIG.gapStartX / 2, CONFIG.groundTopY / 2, 0);
-groundLeft.size = { width: CONFIG.gapStartX, height: CONFIG.groundTopY, depth: CONFIG.groundDepth };
-scene.add(groundLeft);
+// === Create the Big House/Castle Structure ===
 
-const groundRightWidth = CONFIG.viewWidth - CONFIG.gapEndX;
-const groundRight = createBox({
-  width: groundRightWidth,
-  height: CONFIG.groundTopY,
-  depth: CONFIG.groundDepth,
-  color: CONFIG.groundColor,
-});
-groundRight.position.set(CONFIG.gapEndX + groundRightWidth / 2, CONFIG.groundTopY / 2, 0);
-groundRight.size = { width: groundRightWidth, height: CONFIG.groundTopY, depth: CONFIG.groundDepth };
-scene.add(groundRight);
+function createCastle() {
+  const castle = new THREE.Group();
+  
+  // Main building
+  const mainBuilding = createBox({
+    width: 400,
+    height: 350,
+    depth: 300,
+    material: stoneMaterial.clone(),
+  });
+  mainBuilding.position.set(0, 175, 0);
+  castle.add(mainBuilding);
+  
+  // Roof
+  const roofGeom = new THREE.ConeGeometry(250, 150, 4);
+  const roofMat = new THREE.MeshStandardMaterial({ color: 0x8b0000 });
+  const roof = new THREE.Mesh(roofGeom, roofMat);
+  roof.position.set(0, 350 + 75, 0);
+  roof.rotation.y = Math.PI / 4;
+  castle.add(roof);
+  
+  // Towers at corners
+  const towerPositions = [
+    { x: -180, z: -130 },
+    { x: 180, z: -130 },
+    { x: -180, z: 130 },
+    { x: 180, z: 130 },
+  ];
+  
+  for (const tpos of towerPositions) {
+    const tower = createBox({
+      width: 60,
+      height: 420,
+      depth: 60,
+      material: stoneDarkMaterial.clone(),
+    });
+    tower.position.set(tpos.x, 210, tpos.z);
+    castle.add(tower);
+    
+    // Tower roof
+    const towerRoof = new THREE.Mesh(
+      new THREE.ConeGeometry(45, 60, 8),
+      new THREE.MeshStandardMaterial({ color: 0x4a0000 })
+    );
+    towerRoof.position.set(tpos.x, 420 + 30, tpos.z);
+    castle.add(towerRoof);
+  }
+  
+  // Windows
+  const windowMat = new THREE.MeshStandardMaterial({
+    color: 0xffeb99,
+    emissive: 0xffeb99,
+    emissiveIntensity: 0.5,
+  });
+  
+  for (let row = 0; row < 3; row++) {
+    for (let col = 0; col < 3; col++) {
+      const windowMesh = createBox({
+        width: 30,
+        height: 50,
+        depth: 10,
+        material: windowMat.clone(),
+      });
+      windowMesh.position.set(
+        (col - 1) * 80,
+        80 + row * 90,
+        -155
+      );
+      castle.add(windowMesh);
+    }
+  }
+  
+  // Gold decorations
+  const goldBanner = createBox({
+    width: 120,
+    height: 40,
+    depth: 15,
+    material: goldMaterial.clone(),
+  });
+  goldBanner.position.set(0, 320, -155);
+  castle.add(goldBanner);
+  
+  return castle;
+}
 
-// Static platform
-const platform = createBox({
-  width: CONFIG.platformWidth,
-  height: CONFIG.platformHeight,
-  depth: CONFIG.platformDepth,
-  color: CONFIG.platformColor,
-});
-platform.position.set(CONFIG.platformCenterX, CONFIG.platformY, CONFIG.platformZ);
-platform.size = { width: CONFIG.platformWidth, height: CONFIG.platformHeight, depth: CONFIG.platformDepth };
-scene.add(platform);
+// === Parallax Background Clouds ===
 
-// Timed disappearing platform
-const timedPlatform = createBox({
-  width: CONFIG.timedPlatformWidth,
-  height: CONFIG.timedPlatformHeight,
-  depth: CONFIG.timedPlatformDepth,
-  color: CONFIG.timedPlatformColor,
-});
-timedPlatform.position.set(CONFIG.timedPlatformCenterX, CONFIG.timedPlatformY, CONFIG.timedPlatformCenterZ);
-timedPlatform.size = {
-  width: CONFIG.timedPlatformWidth,
-  height: CONFIG.timedPlatformHeight,
-  depth: CONFIG.timedPlatformDepth,
-};
-scene.add(timedPlatform);
+function createBackgroundCloud(size) {
+  const cloud = new THREE.Group();
+  const numBalls = 4 + Math.floor(Math.random() * 4);
+  
+  for (let i = 0; i < numBalls; i++) {
+    const radius = size * (0.5 + Math.random() * 0.5);
+    const ball = new THREE.Mesh(
+      new THREE.SphereGeometry(radius, 8, 6),
+      new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.8,
+      })
+    );
+    ball.position.set(
+      (Math.random() - 0.5) * size * 2,
+      (Math.random() - 0.5) * size * 0.5,
+      (Math.random() - 0.5) * size
+    );
+    cloud.add(ball);
+  }
+  
+  return cloud;
+}
 
-// Moving platform
-const movingPlatform = createBox({
-  width: CONFIG.movingPlatformWidth,
-  height: CONFIG.movingPlatformHeight,
-  depth: CONFIG.movingPlatformDepth,
-  color: CONFIG.movingPlatformColor,
-});
-movingPlatform.basePosition = new THREE.Vector3(
-  CONFIG.movingPlatformCenterX,
-  CONFIG.movingPlatformY,
-  CONFIG.movingPlatformZ
-);
-movingPlatform.position.copy(movingPlatform.basePosition);
-movingPlatform.size = {
-  width: CONFIG.movingPlatformWidth,
-  height: CONFIG.movingPlatformHeight,
-  depth: CONFIG.movingPlatformDepth,
-};
-scene.add(movingPlatform);
+const backgroundClouds = [];
+for (let i = 0; i < 20; i++) {
+  const cloud = createBackgroundCloud(40 + Math.random() * 60);
+  cloud.position.set(
+    Math.random() * 5000 - 500,
+    200 + Math.random() * 400,
+    -600 - Math.random() * 400
+  );
+  cloud.parallaxSpeed = 0.1 + Math.random() * 0.2;
+  scene.add(cloud);
+  backgroundClouds.push(cloud);
+}
 
-// Hazard
-const hazard = createBox({
-  width: CONFIG.hazardWidth,
-  height: CONFIG.hazardHeight,
-  depth: CONFIG.hazardDepth,
+// === Create Level Platforms ===
+
+const platforms = [];
+const spinningPlatforms = [];
+const movingPlatforms = [];
+const hazards = [];
+const jumpPads = [];
+
+// Section 1: Cloud Approach (x: 0-1000)
+function createSection1() {
+  // Starting ground cloud
+  const startCloud = createCloudPlatform({ width: 300, height: 40, depth: 300 });
+  startCloud.position.set(150, 30, 0);
+  scene.add(startCloud);
+  platforms.push({ mesh: startCloud, type: 'cloud' });
+  
+  // Cloud platforms leading forward
+  const cloudPositions = [
+    { x: 350, y: 80, z: -50 },
+    { x: 480, y: 120, z: 80 },
+    { x: 600, y: 100, z: -20 },
+    { x: 720, y: 150, z: 100 },
+    { x: 850, y: 130, z: -60 },
+    { x: 950, y: 180, z: 40 },
+    // Additional clouds for difficulty
+    { x: 400, y: 60, z: 150 },
+    { x: 550, y: 90, z: -150 },
+  ];
+  
+  for (const pos of cloudPositions) {
+    const cloud = createCloudPlatform({
+      width: 100 + Math.random() * 40,
+      height: 20,
+      depth: 80 + Math.random() * 30,
+    });
+    cloud.position.set(pos.x, pos.y, pos.z);
+    scene.add(cloud);
+    platforms.push({ mesh: cloud, type: 'cloud' });
+  }
+}
+
+// Section 2: Rainbow Bridge (x: 1000-2000)
+function createSection2() {
+  // Rainbow path platforms
+  const rainbowPath = [
+    { x: 1050, y: 200, z: 0, colorIndex: 0 },
+    { x: 1150, y: 220, z: 50, colorIndex: 1 },
+    { x: 1250, y: 240, z: 0, colorIndex: 2 },
+    { x: 1350, y: 260, z: -50, colorIndex: 3 },
+    { x: 1450, y: 250, z: 0, colorIndex: 4 },
+    { x: 1550, y: 230, z: 50, colorIndex: 5 },
+    { x: 1650, y: 210, z: 0, colorIndex: 0 },
+    { x: 1750, y: 190, z: -50, colorIndex: 1 },
+    { x: 1850, y: 180, z: 0, colorIndex: 2 },
+    { x: 1950, y: 200, z: 50, colorIndex: 3 },
+  ];
+  
+  for (const pos of rainbowPath) {
+    const platform = createRainbowPlatform({
+      width: 90,
+      height: 15,
+      depth: 90,
+      colorIndex: pos.colorIndex,
+    });
+    platform.position.set(pos.x, pos.y, pos.z);
+    scene.add(platform);
+    platforms.push({ mesh: platform, type: 'rainbow' });
+  }
+  
+  // Moving platforms along rainbow
+  const moving1 = createRainbowPlatform({ width: 100, height: 15, depth: 80, colorIndex: 4 });
+  moving1.basePosition = new THREE.Vector3(1200, 280, -100);
+  moving1.position.copy(moving1.basePosition);
+  moving1.moveAxis = 'z';
+  moving1.moveAmplitude = 100;
+  moving1.moveSpeed = 1.0;
+  scene.add(moving1);
+  movingPlatforms.push(moving1);
+  platforms.push({ mesh: moving1, type: 'moving' });
+  
+  const moving2 = createRainbowPlatform({ width: 90, height: 15, depth: 90, colorIndex: 5 });
+  moving2.basePosition = new THREE.Vector3(1600, 260, 100);
+  moving2.position.copy(moving2.basePosition);
+  moving2.moveAxis = 'x';
+  moving2.moveAmplitude = 80;
+  moving2.moveSpeed = 0.8;
+  scene.add(moving2);
+  movingPlatforms.push(moving2);
+  platforms.push({ mesh: moving2, type: 'moving' });
+  
+  // Cloud safety nets below
+  const safetyCloud1 = createCloudPlatform({ width: 200, height: 20, depth: 150 });
+  safetyCloud1.position.set(1200, 100, 0);
+  scene.add(safetyCloud1);
+  platforms.push({ mesh: safetyCloud1, type: 'cloud' });
+  
+  const safetyCloud2 = createCloudPlatform({ width: 180, height: 20, depth: 150 });
+  safetyCloud2.position.set(1600, 110, 0);
+  scene.add(safetyCloud2);
+  platforms.push({ mesh: safetyCloud2, type: 'cloud' });
+}
+
+// Section 3: Castle Exterior (x: 2000-3200)
+function createSection3() {
+  // Place the castle
+  const castle = createCastle();
+  castle.position.set(2700, 0, 0);
+  scene.add(castle);
+  
+  // Stone platforms around castle exterior
+  const stonePositions = [
+    { x: 2050, y: 180, z: 0 },
+    { x: 2150, y: 220, z: -80 },
+    { x: 2250, y: 270, z: 0 },
+    { x: 2350, y: 320, z: 80 },
+    { x: 2450, y: 380, z: 0 },
+    // Climbing up castle walls (vertical section)
+    { x: 2550, y: 450, z: -100 },
+    { x: 2600, y: 520, z: 0 },
+    { x: 2650, y: 590, z: 100 },
+    { x: 2750, y: 650, z: 0 },
+    { x: 2850, y: 600, z: -80 },
+    { x: 2950, y: 550, z: 0 },
+    { x: 3050, y: 500, z: 80 },
+  ];
+  
+  for (const pos of stonePositions) {
+    const platform = createStonePlatform({
+      width: 80 + Math.random() * 30,
+      height: 18,
+      depth: 80 + Math.random() * 20,
+    });
+    platform.position.set(pos.x, pos.y, pos.z);
+    scene.add(platform);
+    platforms.push({ mesh: platform, type: 'stone' });
+  }
+  
+  // Spinning platforms near castle
+  const spin1 = createSpinningPlatform({
+    width: 100,
+    height: 15,
+    depth: 100,
+    material: goldMaterial.clone(),
+  });
+  spin1.position.set(2200, 200, 100);
+  scene.add(spin1);
+  spinningPlatforms.push(spin1);
+  platforms.push({ mesh: spin1, type: 'spinning' });
+  
+  const spin2 = createSpinningPlatform({
+    width: 90,
+    height: 15,
+    depth: 90,
+    material: goldMaterial.clone(),
+  });
+  spin2.position.set(2800, 550, -150);
+  spin2.spinSpeed = 0.7;
+  scene.add(spin2);
+  spinningPlatforms.push(spin2);
+  platforms.push({ mesh: spin2, type: 'spinning' });
+  
+  // Glass platforms
+  const glass1 = createGlassPlatform({ width: 120, height: 12, depth: 100 });
+  glass1.position.set(2400, 350, -120);
+  scene.add(glass1);
+  platforms.push({ mesh: glass1, type: 'glass' });
+}
+
+// Section 4: Castle Interior & Rooftop (x: 3200-4000)
+function createSection4() {
+  // Final stone/rooftop platforms
+  const rooftopPositions = [
+    { x: 3250, y: 480, z: 0 },
+    { x: 3350, y: 500, z: -60 },
+    { x: 3450, y: 520, z: 40 },
+    { x: 3550, y: 550, z: 0 },
+    { x: 3700, y: 600, z: -50 },
+    { x: 3850, y: 650, z: 50 },
+  ];
+  
+  for (const pos of rooftopPositions) {
+    const platform = createStonePlatform({
+      width: 100,
+      height: 18,
+      depth: 90,
+    });
+    platform.position.set(pos.x, pos.y, pos.z);
+    scene.add(platform);
+    platforms.push({ mesh: platform, type: 'stone' });
+  }
+  
+  // Final spinning platform before goal
+  const finalSpin = createSpinningPlatform({
+    width: 120,
+    height: 15,
+    depth: 120,
+    material: goldMaterial.clone(),
+  });
+  finalSpin.position.set(3950, 680, 0);
+  finalSpin.spinSpeed = 0.3;
+  scene.add(finalSpin);
+  spinningPlatforms.push(finalSpin);
+  platforms.push({ mesh: finalSpin, type: 'spinning' });
+}
+
+// Create all sections
+createSection1();
+createSection2();
+createSection3();
+createSection4();
+
+// === Hazards ===
+
+const hazardMaterial = new THREE.MeshStandardMaterial({
   color: CONFIG.hazardColor,
+  emissive: 0xff0000,
+  emissiveIntensity: 0.3,
 });
-hazard.position.set(CONFIG.hazardCenterX, CONFIG.hazardY, CONFIG.hazardCenterZ);
-hazard.size = { width: CONFIG.hazardWidth, height: CONFIG.hazardHeight, depth: CONFIG.hazardDepth };
-scene.add(hazard);
 
-// Patrolling hazard
-const patrolHazard = createBox({
-  width: CONFIG.patrolHazardWidth,
-  height: CONFIG.patrolHazardHeight,
-  depth: CONFIG.patrolHazardDepth,
-  color: CONFIG.patrolHazardColor,
-});
-patrolHazard.basePosition = new THREE.Vector3(
-  CONFIG.patrolHazardCenterX,
-  CONFIG.patrolHazardY,
-  CONFIG.patrolHazardCenterZ
-);
-patrolHazard.position.copy(patrolHazard.basePosition);
-patrolHazard.size = {
-  width: CONFIG.patrolHazardWidth,
-  height: CONFIG.patrolHazardHeight,
-  depth: CONFIG.patrolHazardDepth,
-};
-scene.add(patrolHazard);
+// Hazard positions across sections
+const hazardPositions = [
+  // Section 1
+  { x: 500, y: 80, z: 30, patrol: true, patrolDist: 60 },
+  // Section 2
+  { x: 1400, y: 240, z: 0, patrol: false },
+  { x: 1700, y: 200, z: 30, patrol: true, patrolDist: 80 },
+  // Section 3
+  { x: 2300, y: 300, z: -40, patrol: true, patrolDist: 100 },
+  { x: 2700, y: 620, z: 50, patrol: false },
+];
 
-// Jump pad
-const jumpPad = createBox({
-  width: CONFIG.jumpPadWidth,
-  height: CONFIG.jumpPadHeight,
-  depth: CONFIG.jumpPadDepth,
-  color: CONFIG.jumpPadColor,
-});
-jumpPad.position.set(CONFIG.jumpPadCenterX, CONFIG.jumpPadY, CONFIG.jumpPadCenterZ);
-jumpPad.size = { width: CONFIG.jumpPadWidth, height: CONFIG.jumpPadHeight, depth: CONFIG.jumpPadDepth };
-scene.add(jumpPad);
+for (const hpos of hazardPositions) {
+  const hazard = createBox({
+    width: 60,
+    height: 25,
+    depth: 60,
+    material: hazardMaterial.clone(),
+  });
+  hazard.position.set(hpos.x, hpos.y, hpos.z);
+  if (hpos.patrol) {
+    hazard.basePosition = new THREE.Vector3(hpos.x, hpos.y, hpos.z);
+    hazard.patrolDistance = hpos.patrolDist;
+    hazard.patrolSpeed = 1.2;
+    hazard.isPatrolling = true;
+  }
+  scene.add(hazard);
+  hazards.push(hazard);
+}
 
-// Checkpoints
+// === Checkpoints (8-10 across sections) ===
+
 const checkpointData = [
-  { id: 'start', position: { x: CONFIG.checkpointStartX, y: CONFIG.groundTopY, z: CONFIG.checkpointStartZ } },
-  { id: 'mid', position: { x: CONFIG.checkpointMidX, y: CONFIG.groundTopY, z: CONFIG.checkpointMidZ } },
+  // Section 1
+  { id: 'start', position: { x: 100, y: 50, z: 0 } },
+  { id: 'cloud1', position: { x: 600, y: 120, z: -20 } },
+  { id: 'cloud2', position: { x: 950, y: 200, z: 40 } },
+  // Section 2
+  { id: 'rainbow1', position: { x: 1250, y: 260, z: 0 } },
+  { id: 'rainbow2', position: { x: 1750, y: 210, z: -50 } },
+  // Section 3
+  { id: 'castle1', position: { x: 2250, y: 290, z: 0 } },
+  { id: 'castle2', position: { x: 2650, y: 610, z: 0 } },
+  { id: 'castle3', position: { x: 3050, y: 520, z: 80 } },
+  // Section 4
+  { id: 'rooftop1', position: { x: 3550, y: 570, z: 0 } },
+  { id: 'rooftop2', position: { x: 3850, y: 670, z: 50 } },
 ];
 
 const checkpoints = checkpointData.map((entry) => {
@@ -311,9 +692,9 @@ const checkpoints = checkpointData.map((entry) => {
     pole,
     flag,
     collisionSize: {
-      width: CONFIG.checkpointPoleWidth + 24,
+      width: CONFIG.checkpointPoleWidth + 30,
       height: CONFIG.checkpointPoleHeight,
-      depth: CONFIG.checkpointPoleDepth + 24,
+      depth: CONFIG.checkpointPoleDepth + 30,
     },
   };
 });
@@ -325,28 +706,165 @@ const checkpointBoxes = checkpoints.map((checkpoint) => ({
   box: getAabbFromCenter(checkpoint.position, checkpoint.collisionSize),
 }));
 
-// Goal flag
+// === Coins (50+ total) ===
+
+const coinLayout = [];
+
+// Section 1 coins (12 coins)
+for (let i = 0; i < 12; i++) {
+  coinLayout.push({
+    position: { 
+      x: 100 + i * 70, 
+      y: 80 + Math.sin(i * 0.5) * 30, 
+      z: Math.sin(i * 0.8) * 80 
+    },
+    radius: 15,
+  });
+}
+
+// Section 2 coins (15 coins along rainbow)
+for (let i = 0; i < 15; i++) {
+  coinLayout.push({
+    position: { 
+      x: 1050 + i * 60, 
+      y: 240 + Math.sin(i * 0.4) * 40, 
+      z: Math.cos(i * 0.6) * 60 
+    },
+    radius: 15,
+  });
+}
+
+// Section 3 coins (15 coins around castle)
+for (let i = 0; i < 15; i++) {
+  coinLayout.push({
+    position: { 
+      x: 2050 + i * 70, 
+      y: 250 + i * 25, 
+      z: Math.sin(i * 0.7) * 100 
+    },
+    radius: 15,
+  });
+}
+
+// Section 4 coins (10 coins on rooftop)
+for (let i = 0; i < 10; i++) {
+  coinLayout.push({
+    position: { 
+      x: 3250 + i * 75, 
+      y: 530 + i * 15, 
+      z: Math.cos(i * 0.5) * 60 
+    },
+    radius: 15,
+  });
+}
+
+let coins = [];
+
+function createCoinMesh() {
+  const geometry = new THREE.TorusGeometry(10, 4, 12, 18);
+  const material = new THREE.MeshStandardMaterial({ 
+    color: CONFIG.coinColor,
+    emissive: 0xffa500,
+    emissiveIntensity: 0.3,
+  });
+  return new THREE.Mesh(geometry, material);
+}
+
+function spawnCoins() {
+  for (const coin of coins) {
+    scene.remove(coin.mesh);
+  }
+
+  coins = coinLayout.map((entry) => {
+    const mesh = createCoinMesh();
+    mesh.position.set(entry.position.x, entry.position.y, entry.position.z);
+    mesh.rotation.x = Math.PI / 2;
+    scene.add(mesh);
+    return { ...entry, mesh };
+  });
+}
+
+spawnCoins();
+
+// === Goal Flag ===
+
 const goal = createBox({
   width: CONFIG.goalWidth,
   height: CONFIG.goalHeight,
   depth: CONFIG.goalDepth,
-  color: CONFIG.goalColor,
+  material: new THREE.MeshStandardMaterial({
+    color: CONFIG.goalColor,
+    emissive: 0xff69b4,
+    emissiveIntensity: 0.4,
+  }),
 });
-goal.position.set(CONFIG.goalCenterX, CONFIG.goalY, CONFIG.goalCenterZ);
+goal.position.set(3980, 750, 0);
 goal.size = { width: CONFIG.goalWidth, height: CONFIG.goalHeight, depth: CONFIG.goalDepth };
 scene.add(goal);
 
-// Player (red box)
-const player = createBox({
-  width: CONFIG.playerWidth,
-  height: CONFIG.playerHeight,
-  depth: CONFIG.playerDepth,
-  color: CONFIG.playerColor,
-});
+// === Player (Upgraded Visual - Mario-like character) ===
+
+function createPlayer() {
+  const player = new THREE.Group();
+  
+  // Body
+  const body = new THREE.Mesh(
+    new THREE.CapsuleGeometry(12, 20, 8, 16),
+    new THREE.MeshStandardMaterial({ color: CONFIG.playerBodyColor })
+  );
+  body.position.y = 0;
+  player.add(body);
+  
+  // Head
+  const head = new THREE.Mesh(
+    new THREE.SphereGeometry(10, 12, 10),
+    new THREE.MeshStandardMaterial({ color: 0xffdbac }) // skin color
+  );
+  head.position.y = 22;
+  player.add(head);
+  
+  // Cap
+  const cap = new THREE.Mesh(
+    new THREE.SphereGeometry(11, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2),
+    new THREE.MeshStandardMaterial({ color: CONFIG.playerCapColor })
+  );
+  cap.position.y = 25;
+  player.add(cap);
+  
+  // Cap brim
+  const brim = new THREE.Mesh(
+    new THREE.CylinderGeometry(12, 12, 3, 12),
+    new THREE.MeshStandardMaterial({ color: CONFIG.playerCapColor })
+  );
+  brim.position.set(0, 22, 7);
+  brim.rotation.x = Math.PI / 2;
+  brim.scale.set(0.8, 0.5, 0.3);
+  player.add(brim);
+  
+  // Eyes
+  const eyeWhite = new THREE.MeshStandardMaterial({ color: 0xffffff });
+  const eyePupil = new THREE.MeshStandardMaterial({ color: 0x000000 });
+  
+  for (const side of [-1, 1]) {
+    const white = new THREE.Mesh(new THREE.SphereGeometry(3, 8, 6), eyeWhite);
+    white.position.set(side * 4, 24, 7);
+    player.add(white);
+    
+    const pupil = new THREE.Mesh(new THREE.SphereGeometry(1.5, 6, 4), eyePupil);
+    pupil.position.set(side * 4, 24, 9);
+    player.add(pupil);
+  }
+  
+  player.size = { width: CONFIG.playerWidth, height: CONFIG.playerHeight, depth: CONFIG.playerDepth };
+  
+  return player;
+}
+
+const player = createPlayer();
 
 // Player state
 let playerX = CONFIG.playerStartX;
-let playerY = CONFIG.groundTopY + CONFIG.playerHeight / 2;
+let playerY = CONFIG.groundTopY + CONFIG.playerHeight / 2 + 20;
 let playerZ = CONFIG.playerStartZ;
 let velocityY = 0;
 let isGrounded = true;
@@ -354,24 +872,22 @@ let isDead = false;
 let isRidingMovingPlatform = false;
 let isWin = false;
 let score = 0;
-let timedPlatformState = { isActive: true, timer: 0, respawnTimer: 0 };
 let activeCheckpoint = checkpoints[0];
 
-// Update player mesh position
 function updatePlayerPosition() {
   player.position.set(playerX, playerY, playerZ);
 }
 updatePlayerPosition();
 scene.add(player);
 
-// Death message element
+// UI Elements
 const deathMessage = document.getElementById('death-message');
 const winMessage = document.getElementById('win-message');
 const scoreLabel = document.getElementById('score');
 const checkpointLabel = document.getElementById('checkpoint');
 
 function updateScore() {
-  scoreLabel.textContent = `Coins: ${score}`;
+  scoreLabel.textContent = `Coins: ${score}/${coinLayout.length}`;
 }
 
 function updateCheckpointLabel() {
@@ -398,7 +914,6 @@ const keys = {
   jump: false,
 };
 
-// Event listeners
 window.addEventListener('keydown', (event) => {
   const key = event.key.toLowerCase();
   if (key === 'a' || event.key === 'ArrowLeft') keys.left = true;
@@ -417,39 +932,6 @@ window.addEventListener('keyup', (event) => {
   if (key === ' ' || event.code === 'Space') keys.jump = false;
 });
 
-const coinLayout = [
-  { position: { x: 140, y: 90, z: 60 }, radius: 20 },
-  { position: { x: 280, y: 90, z: -30 }, radius: 20 },
-  { position: { x: 400, y: 260, z: -40 }, radius: 20 },
-  { position: { x: 520, y: 200, z: 120 }, radius: 20 },
-  { position: { x: 620, y: 90, z: -110 }, radius: 20 },
-  { position: { x: 720, y: 90, z: 40 }, radius: 20 },
-];
-
-let coins = [];
-
-function createCoinMesh() {
-  const geometry = new THREE.TorusGeometry(10, 4, 12, 18);
-  const material = new THREE.MeshStandardMaterial({ color: CONFIG.coinColor });
-  return new THREE.Mesh(geometry, material);
-}
-
-function spawnCoins() {
-  for (const coin of coins) {
-    scene.remove(coin.mesh);
-  }
-
-  coins = coinLayout.map((entry) => {
-    const mesh = createCoinMesh();
-    mesh.position.set(entry.position.x, entry.position.y, entry.position.z);
-    mesh.rotation.x = Math.PI / 2;
-    scene.add(mesh);
-    return { ...entry, mesh };
-  });
-}
-
-spawnCoins();
-
 // Reset player
 function resetPlayer({ resetCheckpoint = false } = {}) {
   if (resetCheckpoint) {
@@ -462,20 +944,22 @@ function resetPlayer({ resetCheckpoint = false } = {}) {
   };
 
   playerX = respawnPoint.x;
-  playerY = CONFIG.groundTopY + CONFIG.playerHeight / 2;
+  playerY = (respawnPoint.y || CONFIG.groundTopY) + CONFIG.playerHeight / 2 + 20;
   playerZ = respawnPoint.z;
   velocityY = 0;
   isGrounded = true;
   isDead = false;
   isWin = false;
   isRidingMovingPlatform = false;
-  timedPlatformState = { isActive: true, timer: 0, respawnTimer: 0 };
-  timedPlatform.visible = true;
-  score = 0;
+  
+  if (resetCheckpoint) {
+    score = 0;
+    spawnCoins();
+  }
+  
   updateScore();
   updateCheckpointLabel();
   updateCheckpointColors();
-  spawnCoins();
   deathMessage.style.display = 'none';
   winMessage.style.display = 'none';
   updatePlayerPosition();
@@ -484,7 +968,6 @@ function resetPlayer({ resetCheckpoint = false } = {}) {
 const clock = new THREE.Clock();
 const cameraTarget = new THREE.Vector3();
 const cameraPosition = new THREE.Vector3();
-const movingPlatformPrevious = new THREE.Vector3().copy(movingPlatform.position);
 let elapsed = 0;
 
 function updateCamera() {
@@ -498,18 +981,41 @@ function updateCamera() {
   camera.lookAt(cameraTarget);
 }
 
-function updateMovingPlatform(delta) {
-  elapsed += delta;
-  const offset = Math.sin(elapsed * CONFIG.movingPlatformSpeed) * CONFIG.movingPlatformAmplitude;
-  movingPlatform.position.set(
-    movingPlatform.basePosition.x,
-    movingPlatform.basePosition.y,
-    movingPlatform.basePosition.z + offset
-  );
+function updateMovingPlatforms(delta) {
+  for (const platform of movingPlatforms) {
+    const axis = platform.moveAxis || 'z';
+    const offset = Math.sin(elapsed * platform.moveSpeed) * platform.moveAmplitude;
+    
+    if (axis === 'z') {
+      platform.position.z = platform.basePosition.z + offset;
+    } else if (axis === 'x') {
+      platform.position.x = platform.basePosition.x + offset;
+    }
+  }
+}
 
-  const deltaPosition = new THREE.Vector3().subVectors(movingPlatform.position, movingPlatformPrevious);
-  movingPlatformPrevious.copy(movingPlatform.position);
-  return deltaPosition;
+function updateSpinningPlatforms(delta) {
+  for (const platform of spinningPlatforms) {
+    platform.rotation.y += delta * platform.spinSpeed;
+  }
+}
+
+function updateHazards() {
+  for (const hazard of hazards) {
+    if (hazard.isPatrolling && hazard.basePosition) {
+      const offset = getPatrolOffset(elapsed, hazard.patrolSpeed, hazard.patrolDistance);
+      hazard.position.x = hazard.basePosition.x + offset;
+    }
+  }
+}
+
+function updateBackgroundClouds() {
+  for (const cloud of backgroundClouds) {
+    cloud.position.x -= cloud.parallaxSpeed;
+    if (cloud.position.x < -500) {
+      cloud.position.x = 5000;
+    }
+  }
 }
 
 function rotateCoins(delta) {
@@ -523,14 +1029,13 @@ function update() {
   if (isDead || isWin) return;
 
   const delta = clock.getDelta();
-  const platformDelta = updateMovingPlatform(delta);
+  elapsed += delta;
+  
+  updateMovingPlatforms(delta);
+  updateSpinningPlatforms(delta);
+  updateHazards();
+  updateBackgroundClouds();
   rotateCoins(delta);
-  const patrolOffset = getPatrolOffset(elapsed, CONFIG.patrolHazardSpeed, CONFIG.patrolHazardDistance);
-  patrolHazard.position.set(
-    patrolHazard.basePosition.x + patrolOffset,
-    patrolHazard.basePosition.y,
-    patrolHazard.basePosition.z
-  );
 
   // Horizontal movement
   const move = getMoveVector(keys, CONFIG.moveSpeed);
@@ -538,8 +1043,8 @@ function update() {
   playerZ += move.z;
 
   // Clamp X/Z position
-  playerX = Math.max(CONFIG.minX, Math.min(CONFIG.maxX, playerX));
-  playerZ = Math.max(CONFIG.minZ, Math.min(CONFIG.maxZ, playerZ));
+  playerX = Math.max(CONFIG.worldMinX + 20, Math.min(CONFIG.worldMaxX - 20, playerX));
+  playerZ = Math.max(CONFIG.worldMinZ + 20, Math.min(CONFIG.worldMaxZ - 20, playerZ));
 
   // Jump
   if (keys.jump && isGrounded) {
@@ -556,72 +1061,35 @@ function update() {
     { width: CONFIG.playerWidth, height: CONFIG.playerHeight, depth: CONFIG.playerDepth }
   );
 
-  const groundLeftBox = getBoxAabb(groundLeft);
-  const groundRightBox = getBoxAabb(groundRight);
-  const platformBox = getBoxAabb(platform);
-  const timedPlatformBox = getBoxAabb(timedPlatform);
-  const movingPlatformBox = getBoxAabb(movingPlatform);
-  const hazardBox = getBoxAabb(hazard);
-  const patrolHazardBox = getBoxAabb(patrolHazard);
-  const jumpPadBox = getBoxAabb(jumpPad);
-  const goalBox = getBoxAabb(goal);
-
   let landed = false;
   isRidingMovingPlatform = false;
-  let isOnTimedPlatform = false;
 
-  // Ground collision
-  if (isLandingOnTop(playerBox, groundLeftBox, velocityY, CONFIG.landingTolerance)) {
-    playerY = groundLeftBox.max.y + CONFIG.playerHeight / 2;
-    velocityY = 0;
-    landed = true;
-  } else if (isLandingOnTop(playerBox, groundRightBox, velocityY, CONFIG.landingTolerance)) {
-    playerY = groundRightBox.max.y + CONFIG.playerHeight / 2;
-    velocityY = 0;
-    landed = true;
-  } else if (isLandingOnTop(playerBox, platformBox, velocityY, CONFIG.landingTolerance)) {
-    playerY = platformBox.max.y + CONFIG.playerHeight / 2;
-    velocityY = 0;
-    landed = true;
-  } else if (isLandingOnTop(playerBox, movingPlatformBox, velocityY, CONFIG.landingTolerance)) {
-    playerY = movingPlatformBox.max.y + CONFIG.playerHeight / 2;
-    velocityY = 0;
-    landed = true;
-    isRidingMovingPlatform = true;
-  } else if (
-    timedPlatformState.isActive &&
-    isLandingOnTop(playerBox, timedPlatformBox, velocityY, CONFIG.landingTolerance)
-  ) {
-    playerY = timedPlatformBox.max.y + CONFIG.playerHeight / 2;
-    velocityY = 0;
-    landed = true;
-    isOnTimedPlatform = true;
-  } else if (isLandingOnTop(playerBox, jumpPadBox, velocityY, CONFIG.landingTolerance)) {
-    playerY = jumpPadBox.max.y + CONFIG.playerHeight / 2;
-    velocityY = CONFIG.jumpPadBoost;
-    landed = false;
-  }
-
-  timedPlatformState = updateTimedPlatformState(
-    timedPlatformState,
-    isOnTimedPlatform,
-    delta,
-    { dropDelay: CONFIG.timedPlatformDropDelay, respawnDelay: CONFIG.timedPlatformRespawnDelay }
-  );
-  timedPlatform.visible = timedPlatformState.isActive;
-
-  if (isOnTimedPlatform && !timedPlatformState.isActive) {
-    landed = false;
+  // Platform collision
+  for (const platformEntry of platforms) {
+    const platform = platformEntry.mesh;
+    let platformBox;
+    
+    if (platform.isGroup || platform.type === 'Group') {
+      platformBox = getGroupAabb(platform);
+    } else {
+      platformBox = getBoxAabb(platform);
+    }
+    
+    if (isLandingOnTop(playerBox, platformBox, velocityY, CONFIG.landingTolerance)) {
+      playerY = platformBox.max.y + CONFIG.playerHeight / 2;
+      velocityY = 0;
+      landed = true;
+      
+      if (platformEntry.type === 'moving') {
+        isRidingMovingPlatform = true;
+      }
+      break;
+    }
   }
 
   isGrounded = landed;
 
-  if (isRidingMovingPlatform) {
-    playerX += platformDelta.x;
-    playerZ += platformDelta.z;
-  }
-
-  // Face movement direction for N64 feel
+  // Face movement direction
   if (move.x !== 0 || move.z !== 0) {
     player.rotation.y = Math.atan2(move.x, move.z);
   }
@@ -631,6 +1099,7 @@ function update() {
     { width: CONFIG.playerWidth, height: CONFIG.playerHeight, depth: CONFIG.playerDepth }
   );
 
+  // Checkpoint collision
   const nextCheckpoint = updateCheckpoint(activeCheckpoint, playerBox, checkpointBoxes);
   if (nextCheckpoint?.checkpoint && nextCheckpoint.checkpoint.id !== activeCheckpoint?.id) {
     activeCheckpoint = nextCheckpoint.checkpoint;
@@ -639,17 +1108,22 @@ function update() {
   }
 
   // Hazard collision
-  if (isAabbOverlap(playerBox, hazardBox) || isAabbOverlap(playerBox, patrolHazardBox)) {
-    isDead = true;
-    deathMessage.style.display = 'block';
-    setTimeout(resetPlayer, 1000);
+  for (const hazard of hazards) {
+    const hazardBox = getBoxAabb(hazard);
+    if (isAabbOverlap(playerBox, hazardBox)) {
+      isDead = true;
+      deathMessage.style.display = 'block';
+      setTimeout(resetPlayer, 1000);
+      break;
+    }
   }
 
   // Goal collision
+  const goalBox = getBoxAabb(goal);
   if (isGoalReached(playerBox, goalBox)) {
     isWin = true;
     winMessage.style.display = 'block';
-    setTimeout(() => resetPlayer({ resetCheckpoint: true }), 1500);
+    setTimeout(() => resetPlayer({ resetCheckpoint: true }), 2000);
   }
 
   if (isDead || isWin) {
@@ -678,8 +1152,8 @@ function update() {
     updateScore();
   }
 
-  // Check death (fell below y=0)
-  if (playerY < 0) {
+  // Check death (fell below ground)
+  if (playerY < -100) {
     isDead = true;
     deathMessage.style.display = 'block';
     setTimeout(resetPlayer, 1000);
