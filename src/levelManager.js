@@ -1,6 +1,7 @@
 import { applySceneTheme } from './scene.js';
 import { initSkyLevel, clearSkyLevel } from './levels/skyLevel.js';
 import { initCaveLevel, clearCaveLevel } from './levels/caveLevel.js';
+import { initLavaLevel, clearLavaLevel } from './levels/lavaLevel.js';
 
 const registry = {
   sky: {
@@ -12,6 +13,11 @@ const registry = {
     name: 'Underwater Cave',
     init: initCaveLevel,
     clear: clearCaveLevel,
+  },
+  lava: {
+    name: 'Lava Foundry',
+    init: initLavaLevel,
+    clear: clearLavaLevel,
   },
 };
 

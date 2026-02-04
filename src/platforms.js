@@ -94,6 +94,8 @@ export function updateMovingPlatforms(platforms, elapsed) {
       platform.position.z = platform.basePosition.z + offset;
     } else if (axis === 'x') {
       platform.position.x = platform.basePosition.x + offset;
+    } else if (axis === 'y') {
+      platform.position.y = platform.basePosition.y + offset;
     }
   }
 }

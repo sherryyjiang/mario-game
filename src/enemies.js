@@ -92,15 +92,221 @@ export function animateGoomba(goomba, time, isMoving) {
   goomba.scale.set(1, 1, 1);
 }
 
+export function createBobOmb() {
+  const bob = new THREE.Group();
+  const bodyMat = new THREE.MeshStandardMaterial({ color: 0x2b2b2b, roughness: 0.6, metalness: 0.2 });
+  const body = new THREE.Mesh(new THREE.SphereGeometry(16, 16, 12), bodyMat);
+  body.position.y = 16;
+  bob.add(body);
+
+  const eyeWhite = new THREE.MeshStandardMaterial({ color: 0xffffff });
+  const eyePupil = new THREE.MeshStandardMaterial({ color: 0x000000 });
+  for (const side of [-1, 1]) {
+    const eye = new THREE.Mesh(new THREE.SphereGeometry(3, 8, 6), eyeWhite);
+    eye.position.set(side * 5, 20, 12);
+    bob.add(eye);
+    const pupil = new THREE.Mesh(new THREE.SphereGeometry(1.5, 6, 4), eyePupil);
+    pupil.position.set(side * 5, 20, 15);
+    bob.add(pupil);
+  }
+
+  const footGeometry = new THREE.SphereGeometry(6, 8, 6);
+  footGeometry.scale(1.4, 0.5, 1.2);
+  const footMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a });
+  const leftFoot = new THREE.Mesh(footGeometry, footMat);
+  leftFoot.position.set(-10, 4, 0);
+  bob.add(leftFoot);
+  const rightFoot = leftFoot.clone();
+  rightFoot.position.set(10, 4, 0);
+  bob.add(rightFoot);
+
+  const fuse = new THREE.Mesh(
+    new THREE.CylinderGeometry(1.4, 1.4, 8, 6),
+    new THREE.MeshStandardMaterial({ color: 0x5c5c5c })
+  );
+  fuse.position.set(0, 30, 0);
+  bob.add(fuse);
+
+  const sparkMat = new THREE.MeshStandardMaterial({
+    color: 0xff7f2a,
+    emissive: 0xff7f2a,
+    emissiveIntensity: 0.6,
+  });
+  const spark = new THREE.Mesh(new THREE.SphereGeometry(3, 8, 6), sparkMat);
+  spark.position.set(0, 35, 0);
+  bob.add(spark);
+
+  const keyMat = new THREE.MeshStandardMaterial({ color: 0xbfbfbf, metalness: 0.6, roughness: 0.3 });
+  const key = new THREE.Group();
+  const keyStem = new THREE.Mesh(new THREE.BoxGeometry(4, 14, 4), keyMat);
+  keyStem.position.y = 7;
+  key.add(keyStem);
+  const keyWing = new THREE.Mesh(new THREE.BoxGeometry(12, 3, 3), keyMat);
+  keyWing.position.y = 14;
+  key.add(keyWing);
+  key.position.set(0, 18, -14);
+  bob.add(key);
+  bob.userData.key = key;
+
+  bob.size = { width: 50, height: 40, depth: 50 };
+  bob.userData.type = 'bob-omb';
+  setShadowFlags(bob);
+  return bob;
+}
+
+export function animateBobOmb(bob, time, isMoving) {
+  const baseY = bob.baseY ?? bob.position.y;
+  bob.position.y = baseY + Math.sin(time * 4) * 1.5;
+  if (bob.userData.key) {
+    bob.userData.key.rotation.y = time * 2;
+  }
+  if (isMoving) {
+    const squash = 1 + Math.sin(time * 6) * 0.08;
+    bob.scale.set(squash, 1 / squash, squash);
+    return;
+  }
+  bob.scale.set(1, 1, 1);
+}
+
+export function createFireJet({
+  radius = 8,
+  minHeight = 10,
+  maxHeight = 70,
+  color = 0xff5a1f,
+  emissiveIntensity = 0.9,
+  pulseSpeed = 1.8,
+  phase = null,
+} = {}) {
+  const jet = new THREE.Group();
+  const material = new THREE.MeshStandardMaterial({
+    color,
+    emissive: new THREE.Color(color).multiplyScalar(0.6),
+    emissiveIntensity,
+    roughness: 0.4,
+  });
+  const core = new THREE.Mesh(new THREE.ConeGeometry(radius, 1, 10), material);
+  jet.add(core);
+
+  jet.userData.type = 'fireJet';
+  jet.userData.core = core;
+  jet.userData.minHeight = minHeight;
+  jet.userData.maxHeight = maxHeight;
+  jet.userData.pulseSpeed = pulseSpeed;
+  jet.userData.phase = Number.isFinite(phase) ? phase : Math.random() * Math.PI * 2;
+  jet.userData.radius = radius;
+  jet.size = { width: radius * 2.2, height: maxHeight, depth: radius * 2.2 };
+  setShadowFlags(jet, { castShadow: false, receiveShadow: false });
+  return jet;
+}
+
+export function createFireball({ radius = 6, color = 0xff4d00 } = {}) {
+  const material = new THREE.MeshStandardMaterial({
+    color,
+    emissive: new THREE.Color(color).multiplyScalar(0.6),
+    emissiveIntensity: 0.7,
+    roughness: 0.3,
+  });
+  const fireball = new THREE.Mesh(new THREE.SphereGeometry(radius, 12, 10), material);
+  fireball.userData.type = 'fireball';
+  fireball.size = { width: radius * 2, height: radius * 2, depth: radius * 2 };
+  setShadowFlags(fireball, { castShadow: false, receiveShadow: false });
+  return fireball;
+}
+
+export function createRollingLog({ length = 120, radius = 14, color = 0x8b5a2b } = {}) {
+  const material = new THREE.MeshStandardMaterial({ color, roughness: 0.85, metalness: 0.1 });
+  const log = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, length, 12), material);
+  log.rotation.z = Math.PI / 2;
+  log.userData.type = 'rollingLog';
+  log.size = { width: length, height: radius * 2, depth: radius * 2 };
+  setShadowFlags(log);
+  return log;
+}
+
 export function updateHazards(hazards, elapsed) {
   for (const hazard of hazards) {
+    const type = hazard.userData?.type;
+    if (type === 'fireJet') {
+      const data = hazard.userData ?? {};
+      const minHeight = data.minHeight ?? 10;
+      const maxHeight = data.maxHeight ?? 70;
+      const speed = data.pulseSpeed ?? 1;
+      const phase = data.phase ?? 0;
+      const t = 0.5 + 0.5 * Math.sin(elapsed * speed + phase);
+      const height = minHeight + (maxHeight - minHeight) * t;
+      const base = data.basePosition ?? hazard.position;
+      const baseX = data.baseX ?? base.x ?? 0;
+      const baseY = data.baseY ?? base.y ?? 0;
+      const baseZ = data.baseZ ?? base.z ?? 0;
+
+      hazard.position.set(baseX, baseY + height / 2, baseZ);
+      hazard.size = {
+        width: (data.radius ?? 8) * 2.2,
+        height,
+        depth: (data.radius ?? 8) * 2.2,
+      };
+
+      if (data.core) {
+        const flare = 0.9 + t * 0.25;
+        data.core.scale.set(flare, height, flare);
+      }
+      continue;
+    }
+
+    if (type === 'fireball') {
+      const path = hazard.userData?.path;
+      if (path?.start && path?.end) {
+        const speed = path.travelSpeed ?? 0.6;
+        const phase = path.phase ?? 0;
+        const rawT = (elapsed * speed + phase) % 1;
+        const t = rawT < 0 ? rawT + 1 : rawT;
+        const x = path.start.x + (path.end.x - path.start.x) * t;
+        const z = path.start.z + (path.end.z - path.start.z) * t;
+        const baseY = path.start.y + (path.end.y - path.start.y) * t;
+        const arc = path.arcHeight ?? 60;
+        const y = baseY + arc * 4 * t * (1 - t);
+        hazard.position.set(x, y, z);
+      }
+      continue;
+    }
+
+    if (type === 'rollingLog') {
+      const data = hazard.userData ?? {};
+      const base = data.basePosition ?? hazard.position;
+      const axis = data.moveAxis ?? 'z';
+      const offset = Math.sin(elapsed * (data.moveSpeed ?? 1)) * (data.moveAmplitude ?? 40);
+
+      if (axis === 'x') {
+        hazard.position.x = base.x + offset;
+      } else if (axis === 'y') {
+        hazard.position.y = base.y + offset;
+      } else {
+        hazard.position.z = base.z + offset;
+      }
+
+      const rollAxis = data.rollAxis ?? 'x';
+      hazard.rotation[rollAxis] = elapsed * (data.rollSpeed ?? 2);
+      continue;
+    }
+
     let isMoving = false;
     if (hazard.isPatrolling && hazard.basePosition) {
       const offset = getPatrolOffset(elapsed, hazard.patrolSpeed, hazard.patrolDistance);
-      hazard.position.x = hazard.basePosition.x + offset;
+      const axis = hazard.patrolAxis ?? 'x';
+      if (axis === 'z') {
+        hazard.position.z = hazard.basePosition.z + offset;
+      } else if (axis === 'y') {
+        hazard.position.y = hazard.basePosition.y + offset;
+      } else {
+        hazard.position.x = hazard.basePosition.x + offset;
+      }
       isMoving = true;
     }
-    animateGoomba(hazard, elapsed, isMoving);
+    if (type === 'bob-omb') {
+      animateBobOmb(hazard, elapsed, isMoving);
+    } else {
+      animateGoomba(hazard, elapsed, isMoving);
+    }
   }
 }
 
